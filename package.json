@@ -1,0 +1,22 @@
+{
+  "name": "migration-adapters",
+  "packageManager": "yarn@3.6.1",
+  "devDependencies": {
+    "@lerna-lite/changed": "^2.5.0",
+    "@lerna-lite/cli": "^2.5.0",
+    "@lerna-lite/publish": "^2.5.0",
+    "@lerna-lite/version": "^2.5.0",
+    "@lerna-lite/watch": "^2.5.0",
+    "esbuild": "^0.18.11"
+  },
+  "scripts": {
+    "new-version": "lerna version",
+    "new-publish": "lerna publish from-package",
+    "preview:new-version": "lerna version --dry-run",
+    "run-tests": "lerna run test"
+  },
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ]
+}

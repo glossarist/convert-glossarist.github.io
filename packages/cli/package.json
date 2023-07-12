@@ -1,0 +1,14 @@
+{
+  "name": "@riboseinc/glossarist-adapter-cli",
+  "version": "0.0.1",
+  "license": "MIT",
+  "packageManager": "yarn@3.6.1",
+  "dependencies": {
+    "@riboseinc/glossarist-x3duom": "workspace:~",
+    "cmd-ts": "^0.12.1"
+  },
+  "homepage": "https://github.com/glossarist/migration-adapters/tree/main/packages/cli",
+  "devDependencies": {
+    "typescript": "~5.1"
+  }
+}
