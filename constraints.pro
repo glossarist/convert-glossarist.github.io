@@ -24,7 +24,7 @@ gen_enforced_dependency(WorkspaceCwd, DependencyIdent, null, devDependencies) :-
   DependencyIdent \= 'typescript',.
   DependencyIdent \= 'esbuild'.
 
-% Require specific typescript dependency version
+% Require specific typescript version
 gen_enforced_dependency(WorkspaceCwd, 'typescript', '~5.1', devDependencies) :-
   workspace_has_dependency(WorkspaceCwd, 'typescript', _, devDependencies).
 
