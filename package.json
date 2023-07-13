@@ -2,7 +2,7 @@
   "name": "migration-adapters",
   "packageManager": "yarn@3.6.1",
   "devDependencies": {
-    "esbuild": "^0.18.11"
+    "esbuild": "~0.18"
   },
   "scripts": {
     "new-version": "lerna version",
