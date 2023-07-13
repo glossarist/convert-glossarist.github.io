@@ -4,6 +4,11 @@
   "devDependencies": {
     "esbuild": "~0.18"
   },
+  "dependenciesMeta": {
+    "esbuild": {
+      "built": true
+    }
+  },
   "scripts": {
     "new-version": "lerna version",
     "new-publish": "lerna publish from-package",
