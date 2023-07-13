@@ -247,6 +247,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@riboseinc/glossarist-adapter-cli", "workspace:packages/cli"],\
             ["@riboseinc/glossarist-x3duom", "workspace:packages/x3duom"],\
+            ["@types/node", "npm:20.4.2"],\
             ["cmd-ts", "npm:0.12.1"],\
             ["esbuild", "npm:0.18.12"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
@@ -270,6 +271,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@riboseinc-paneron-extension-glossarist-npm-2.0.11-ffdfe675a2-fe8a5f4fba.zip/node_modules/@riboseinc/paneron-extension-glossarist/",\
           "packageDependencies": [\
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/node", [\
+        ["npm:20.4.2", {\
+          "packageLocation": "./.yarn/cache/@types-node-npm-20.4.2-0b33863e43-99e544ea75.zip/node_modules/@types/node/",\
+          "packageDependencies": [\
+            ["@types/node", "npm:20.4.2"]\
           ],\
           "linkType": "HARD"\
         }]\
