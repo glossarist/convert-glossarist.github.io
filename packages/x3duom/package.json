@@ -6,8 +6,7 @@
   "homepage": "https://github.com/glossarist/migration-adapters/tree/main/packages/x3duom",
   "main": "index.js",
   "scripts": {
-    "compile": "tsc --outdir compiled",
-    "bundle": "esbuild compiled/index.js --bundle --outfile index.js"
+    "compile": "tsc --outdir compiled"
   },
   "devDependencies": {
     "typescript": "~5.1"
