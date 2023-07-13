@@ -38,7 +38,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["esbuild", "npm:0.18.12"]\
+            ["esbuild", "npm:0.18.12"],\
+            ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"],\
+            ["typescript-language-server", "npm:3.3.2"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -423,7 +425,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["migration-adapters", "workspace:."],\
-            ["esbuild", "npm:0.18.12"]\
+            ["esbuild", "npm:0.18.12"],\
+            ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"],\
+            ["typescript-language-server", "npm:3.3.2"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -462,6 +466,53 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/typescript-patch-bd21d74a9d-f53bfe97f7.zip/node_modules/typescript/",\
           "packageDependencies": [\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["typescript-language-server", [\
+        ["npm:3.3.2", {\
+          "packageLocation": "./.yarn/cache/typescript-language-server-npm-3.3.2-c139e35efe-0708c020cf.zip/node_modules/typescript-language-server/",\
+          "packageDependencies": [\
+            ["typescript-language-server", "npm:3.3.2"],\
+            ["vscode-jsonrpc", "npm:5.0.1"],\
+            ["vscode-languageserver-protocol", "npm:3.17.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["vscode-jsonrpc", [\
+        ["npm:5.0.1", {\
+          "packageLocation": "./.yarn/cache/vscode-jsonrpc-npm-5.0.1-7a11dfc031-a9188774d8.zip/node_modules/vscode-jsonrpc/",\
+          "packageDependencies": [\
+            ["vscode-jsonrpc", "npm:5.0.1"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:8.1.0", {\
+          "packageLocation": "./.yarn/cache/vscode-jsonrpc-npm-8.1.0-557f20ee72-8980037cc0.zip/node_modules/vscode-jsonrpc/",\
+          "packageDependencies": [\
+            ["vscode-jsonrpc", "npm:8.1.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["vscode-languageserver-protocol", [\
+        ["npm:3.17.3", {\
+          "packageLocation": "./.yarn/cache/vscode-languageserver-protocol-npm-3.17.3-3c0373c95b-ffea508b2e.zip/node_modules/vscode-languageserver-protocol/",\
+          "packageDependencies": [\
+            ["vscode-languageserver-protocol", "npm:3.17.3"],\
+            ["vscode-jsonrpc", "npm:8.1.0"],\
+            ["vscode-languageserver-types", "npm:3.17.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["vscode-languageserver-types", [\
+        ["npm:3.17.3", {\
+          "packageLocation": "./.yarn/cache/vscode-languageserver-types-npm-3.17.3-2fde4bb32b-fbc8221297.zip/node_modules/vscode-languageserver-types/",\
+          "packageDependencies": [\
+            ["vscode-languageserver-types", "npm:3.17.3"]\
           ],\
           "linkType": "HARD"\
         }]\
