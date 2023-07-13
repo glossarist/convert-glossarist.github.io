@@ -175,9 +175,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@riboseinc/glossarist-x3duom@workspace:packages/x3duom"
   dependencies:
+    "@riboseinc/paneron-extension-glossarist": ^2.0.11
     typescript: ~5.1
   languageName: unknown
   linkType: soft
+
+"@riboseinc/paneron-extension-glossarist@npm:^2.0.11":
+  version: 2.0.11
+  resolution: "@riboseinc/paneron-extension-glossarist@npm:2.0.11"
+  checksum: fe8a5f4fba47be9816a6cf139f5f1225dad9aab8adc31ac525ce58665814abca00c6cfa9c1239120730703fe3fb629bf696e24938258aacbdf79d17feba228cf
+  languageName: node
+  linkType: hard
 
 "@types/node@npm:^20.4.2":
   version: 20.4.2

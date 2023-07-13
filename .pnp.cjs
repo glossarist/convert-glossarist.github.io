@@ -259,9 +259,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/x3duom/",\
           "packageDependencies": [\
             ["@riboseinc/glossarist-x3duom", "workspace:packages/x3duom"],\
+            ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
           ],\
           "linkType": "SOFT"\
+        }]\
+      ]],\
+      ["@riboseinc/paneron-extension-glossarist", [\
+        ["npm:2.0.11", {\
+          "packageLocation": "./.yarn/cache/@riboseinc-paneron-extension-glossarist-npm-2.0.11-ffdfe675a2-fe8a5f4fba.zip/node_modules/@riboseinc/paneron-extension-glossarist/",\
+          "packageDependencies": [\
+            ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["ansi-regex", [\

@@ -9,6 +9,7 @@
     "compile": "tsc --outdir compiled"
   },
   "devDependencies": {
+    "@riboseinc/paneron-extension-glossarist": "^2.0.11",
     "typescript": "~5.1"
   }
 }
