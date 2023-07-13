@@ -28,6 +28,10 @@ gen_enforced_dependency(WorkspaceCwd, DependencyIdent, null, devDependencies) :-
 gen_enforced_dependency(WorkspaceCwd, 'typescript', '~5.1', devDependencies) :-
   workspace_has_dependency(WorkspaceCwd, 'typescript', _, devDependencies).
 
+% Require specific esbuild version
+gen_enforced_dependency(WorkspaceCwd, 'esbuild', '~0.18', devDependencies) :-
+  workspace_has_dependency(WorkspaceCwd, 'esbuild', _, devDependencies).
+
 % TODO:
 % - Disallow conflicting versions of the same package in dev and peer dependencies
 % - Require every peer dependency to be listed as dev dependency
