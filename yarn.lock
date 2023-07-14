@@ -187,6 +187,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@riboseinc/paneron-registry-kit@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@riboseinc/paneron-registry-kit@npm:2.1.1"
+  checksum: b77774961549f3b9c902db1814803a9a809331d3a92f97845c566520b1f886a75a4e513bf3a3eec38635a7971325b6d1f697ab599f2857891c98f881bb967e7b
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^20.4.2":
   version: 20.4.2
   resolution: "@types/node@npm:20.4.2"
