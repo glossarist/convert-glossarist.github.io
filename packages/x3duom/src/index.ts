@@ -44,7 +44,7 @@ async function* (rawXML, opts) {
   for (const [containerIdx, container] of doc.getElementsByName('glossaryChoices').entries()) {
     for (const [enumIdx, maybeEnumEl] of [...container.children].entries()) {
       const decimalIdx = parseFloat(`${containerIdx + 1}.${enumIdx + 1}`)
-      opts?.onProgress?.("processing acronyms", decimalIdx, undefined);
+      opts?.onProgress?.("processing terms", decimalIdx, undefined);
       yield getDataset(processEnum(
         `acronym-${decimalIdx}`,
         maybeEnumEl,
