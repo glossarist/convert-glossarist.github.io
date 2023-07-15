@@ -77,7 +77,6 @@ function processEnum(
   el: Element,
   opts?: { isAbbreviation?: boolean },
 ): ConceptPair {
-  const conceptUUID = crypto.randomUUID();
   const localizedConceptUUID = crypto.randomUUID();
   const expressionStub: Omit<Expression, 'designation'> = {
     type: 'expression',
@@ -85,27 +84,25 @@ function processEnum(
   if (opts?.isAbbreviation) {
     expressionStub.isAbbreviation = opts.isAbbreviation;
   }
-  const localizedConceptData = parseLocalizedConcept(
-    el,
-    expressionStub,
-    { language_code: 'eng' },
-  );
-  const concept: ConceptData = {
-    identifier,
-    localizedConcepts: {
-      eng: localizedConceptUUID,
-    },
-  };
   return [
     {
       ...makeDefaultRegisterItemStub(el),
-      id: conceptUUID,
-      data: concept,
+      id: crypto.randomUUID(),
+      data: {
+        identifier,
+        localizedConcepts: {
+          eng: localizedConceptUUID,
+        },
+      },
     },
     {
       ...makeDefaultRegisterItemStub(el),
       id: localizedConceptUUID,
-      data: localizedConceptData,
+      data: parseLocalizedConcept(
+        el,
+        expressionStub,
+        { language_code: 'eng' },
+      ),
     },
   ];
 }
