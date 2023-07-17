@@ -20,6 +20,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/cli"\
       },\
       {\
+        "name": "common",\
+        "reference": "workspace:packages/common"\
+      },\
+      {\
         "name": "@riboseinc/glossarist-x3duom",\
         "reference": "workspace:packages/x3duom"\
       }\
@@ -29,6 +33,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "fallbackExclusionList": [\
       ["@riboseinc/glossarist-adapter-cli", ["workspace:packages/cli"]],\
       ["@riboseinc/glossarist-x3duom", ["workspace:packages/x3duom"]],\
+      ["common", ["workspace:packages/common"]],\
       ["migration-adapters", ["workspace:."]]\
     ],\
     "fallbackPool": [\
@@ -376,6 +381,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["color-name", "npm:1.1.4"]\
           ],\
           "linkType": "HARD"\
+        }]\
+      ]],\
+      ["common", [\
+        ["workspace:packages/common", {\
+          "packageLocation": "./packages/common/",\
+          "packageDependencies": [\
+            ["common", "workspace:packages/common"],\
+            ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.1.1"],\
+            ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
+          ],\
+          "linkType": "SOFT"\
         }]\
       ]],\
       ["debug", [\

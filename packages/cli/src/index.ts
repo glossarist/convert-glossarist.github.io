@@ -6,9 +6,9 @@ const app = command({
   args: {
     someArg: positional({ type: string, displayName: 'some arg' }),
   },
-  handler: ({ someArg }) => {
+  handler: async ({ someArg }) => {
     console.log({ someArg });
-    for (const ds of convertX3D()) {
+    for await (const ds of convertX3D('test')) {
       console.log(JSON.stringify(ds));
     }
   },
