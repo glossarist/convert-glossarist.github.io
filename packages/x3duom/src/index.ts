@@ -1,153 +1,118 @@
-import yaml from 'js-yaml';
-
-import type { ConceptData } from '@riboseinc/paneron-extension-glossarist/classes/concept';
 import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData';
 import type { Designation, Expression } from '@riboseinc/paneron-extension-glossarist/models/concepts';
-import type { RegisterItem } from '@riboseinc/paneron-registry-kit/types';
+import type { ProgressHandler, InputDecoder, ItemConvertor, Convertor } from 'common';
 
 
-const encoder = new TextEncoder();
-
-
-interface Options {
-  /** Progress handler invoked on every item. */
-  onProgress?: (
-    stageGerund: string,
-    completed: number | undefined,
-    total: number | undefined,
-  ) => void;
-}
-
-
-/**
- * Main entry point.
- * Takes an XML string, asynchronously generates buffer datasets.
- * Assumes designations and definitions are in English: uses `eng` as `language_code`.
- */
-const convertX3D:
-(rawXML: string, opts?: Options) => AsyncGenerator<BufferDataset, void, void> =
-async function* (rawXML, opts) {
-  const doc = parser.parseFromString(rawXML, 'text/xml');
-
-  for (const [containerIdx, container] of doc.getElementsByName('acronymChoices').entries()) {
-    for (const [enumIdx, maybeEnumEl] of [...container.children].entries()) {
-      const decimalIdx = parseFloat(`${containerIdx + 1}.${enumIdx + 1}`)
-      opts?.onProgress?.("processing acronyms", decimalIdx, undefined);
-      yield getDataset(processEnum(
-        `acronym-${decimalIdx}`,
-        maybeEnumEl,
-        { isAbbreviation: true },
-      ));
-    }
-  }
-
-  for (const [containerIdx, container] of doc.getElementsByName('glossaryChoices').entries()) {
-    for (const [enumIdx, maybeEnumEl] of [...container.children].entries()) {
-      const decimalIdx = parseFloat(`${containerIdx + 1}.${enumIdx + 1}`)
-      opts?.onProgress?.("processing terms", decimalIdx, undefined);
-      yield getDataset(processEnum(
-        `acronym-${decimalIdx}`,
-        maybeEnumEl,
-      ));
-    }
-  }
-}
-
-
-interface BufferDataset {
-  [filePath: string]: Uint8Array
-}
-
-type ConceptPair = [RegisterItem<ConceptData>, RegisterItem<LocalizedConceptData>];
-
-
-function getDataset(data: ConceptPair): BufferDataset {
-  const [concept, localizedConcept] = data;
+export function getConvertor(): Convertor<IntermediateItem> {
   return {
-    [`concepts/${concept.id}.yaml`]:
-      encoder.encode(yaml.dump(concept)),
-    [`localized-concepts/${localizedConcept.id}.yaml`]:
-      encoder.encode(yaml.dump(localizedConcept)),
-  }
-}
-
-
-function processEnum(
-  identifier: string,
-  el: Element,
-  opts?: { isAbbreviation?: boolean },
-): ConceptPair {
-  const localizedConceptUUID = crypto.randomUUID();
-  const expressionStub: Omit<Expression, 'designation'> = {
-    type: 'expression',
+    label: "X3D",
+    description: "Upload an XML file, or a directory with XML files, containing terms in X3D UOM format",
+    decodeInput: decodeX3DData,
+    convertItem: parseLocalizedConcept,
   };
-  if (opts?.isAbbreviation) {
-    expressionStub.isAbbreviation = opts.isAbbreviation;
-  }
-  return [
-    {
-      ...makeDefaultRegisterItemStub(el),
-      id: crypto.randomUUID(),
-      data: {
-        identifier,
-        localizedConcepts: {
-          eng: localizedConceptUUID,
-        },
-      },
-    },
-    {
-      ...makeDefaultRegisterItemStub(el),
-      id: localizedConceptUUID,
-      data: parseLocalizedConcept(
-        el,
-        expressionStub,
-        { language_code: 'eng' },
-      ),
-    },
-  ];
 }
 
 
-export default convertX3D;
-
-
+const decoder = new TextDecoder('utf-8');
 const parser = new DOMParser();
 
 
-type RegisterItemStub = Omit<RegisterItem<any>, 'id' | 'data'>;
-type LocalizedConceptStub =
-    Partial<Omit<LocalizedConceptData, 'definition' | 'terms'>>
-  & Pick<LocalizedConceptData, 'language_code'>;
+interface IntermediateItem {
+  /** <enumeration> */
+  el: Element;
+
+  /** Properties of a designation that cannot be read from XML directly. */
+  designationProperties: DesignationStub,
+}
+
+
 type DesignationStub =
     Pick<Designation, 'normative_status'>
   & Partial<Omit<Designation, 'designation'>>;
 
-interface StubGetter<F> {
-  (el: Element): F;
+
+
+/** Returns files from given directory (only topmost level though, no recursion). */
+function getFiles(dir: FileSystemDirectoryEntry): Promise<FileSystemFileEntry[]> {
+  return new Promise((resolve, reject) => {
+    dir.createReader().readEntries((results) => {
+      resolve(results.filter(r => r.isFile).map(r => r as FileSystemFileEntry));
+    }, reject);
+  });
 }
 
-const makeDefaultRegisterItemStub: StubGetter<RegisterItemStub> =
-function makeRegisterItemStub() {
-  return {
-    dateAccepted: new Date(),
-    status: 'valid',
-  };
+
+function decodeFileEntryToString(fileEntry: FileSystemFileEntry): Promise<string> {
+  return new Promise((resolve, reject) => {
+    fileEntry.file((file) => {
+      file.arrayBuffer().then(buf =>
+        resolve(decoder.decode(buf)), reject);
+    }, reject);
+  });
 }
 
 
-function parseLocalizedConcept(
-  el: Element,
-  designationStub: DesignationStub,
-  localizedConceptStub: LocalizedConceptStub,
-): LocalizedConceptData {
-  if (el.localName === 'enumeration') {
-    const definition = el.getAttribute('appinfo');
-    const designation = el.getAttribute('value');
-    const link = el.getAttribute('documentation');
+const decodeX3DData: InputDecoder<IntermediateItem> = async function * (input) {
+  const files = input.isDirectory
+    ? (await getFiles(input as FileSystemDirectoryEntry))
+    : [input as FileSystemFileEntry];
+  for (const fileEntry of files) {
+    const xmlString = await decodeFileEntryToString(fileEntry);
+    yield * convertX3D(xmlString);
+  }
+}
+
+
+const convertX3D = async function* (xmlString: string) {
+  const doc = parser.parseFromString(xmlString, 'text/xml');
+  yield * readSimpleType('acronyms', doc.getElementsByName('acronymChoices'), undefined, true);
+  yield * readSimpleType('term', doc.getElementsByName('glossaryChoices'), undefined);
+}
+
+
+function * readSimpleType(
+  elType: string,
+  simpleTypeEls: NodeListOf<HTMLElement>,
+  onProgress?: ProgressHandler,
+  isAbbreviation?: boolean,
+) {
+  const progressStage = `processing ${elType}`;
+  for (const [containerIdx, container] of simpleTypeEls.entries()) {
+    for (const [enumIdx, maybeEnumEl] of [...container.children].entries()) {
+      const decimalIdx = parseFloat(`${containerIdx + 1}.${enumIdx + 1}`)
+      onProgress?.(progressStage, decimalIdx, undefined);
+
+      const expression: Pick<Expression, 'isAbbreviation'> = {}
+      if (isAbbreviation) {
+        expression.isAbbreviation = true;
+      }
+
+      const item: IntermediateItem = {
+        el: maybeEnumEl,
+        designationProperties: {
+          normative_status: 'preferred',
+          type: 'expression',
+          ...expression,
+        },
+      };
+      yield item;
+    }
+  }
+}
+
+
+const parseLocalizedConcept: ItemConvertor<IntermediateItem> =
+async function parseLocalizedConcept(
+  item: IntermediateItem,
+): Promise<LocalizedConceptData> {
+  if (item.el.localName === 'enumeration') {
+    const definition = item.el.getAttribute('appinfo');
+    const designation = item.el.getAttribute('value');
+    const link = item.el.getAttribute('documentation');
     if (definition?.trim() && designation?.trim()) {
       return {
-        ...localizedConceptStub,
-        terms: [{ ...designationStub, designation } as Designation], // TODO: Avoid cast
+        language_code: 'eng',
+        terms: [{ ...item.designationProperties, designation } as Designation], // TODO: Avoid cast
         definition: [{ content: definition }],
         notes: [],
         examples: [],

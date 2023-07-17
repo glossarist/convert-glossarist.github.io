@@ -270,6 +270,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
             ["@riboseinc/paneron-registry-kit", "npm:2.1.1"],\
             ["@types/js-yaml", "npm:4.0.5"],\
+            ["common", "workspace:packages/common"],\
             ["js-yaml", "npm:4.1.0"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
           ],\

@@ -178,6 +178,7 @@ __metadata:
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
     "@riboseinc/paneron-registry-kit": ^2.1.1
     "@types/js-yaml": ~4.0
+    common: "workspace:^"
     js-yaml: ~4.1
     typescript: ~5.1
   languageName: unknown
