@@ -1,14 +1,14 @@
 import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData';
 import type { Designation, Expression } from '@riboseinc/paneron-extension-glossarist/models/concepts';
-import type { ProgressHandler, InputDecoder, ItemConvertor, Convertor } from 'common';
+import type { ProgressHandler, FileConvertor } from 'common';
 
 
-export function getConvertor(): Convertor<IntermediateItem> {
+export function getConvertor(): FileConvertor<IntermediateItem> {
   return {
-    label: "X3D",
-    description: "Upload an XML file, or a directory with XML files, containing terms in X3D UOM format",
-    decodeInput: decodeX3DData,
-    convertItem: parseLocalizedConcept,
+    label: "X3D UOM XML",
+    inputDescription: "An XML file, or a directory with XML files, containing terms in X3D UOM format",
+    parseInput,
+    readConcepts,
   };
 }
 
@@ -31,36 +31,43 @@ type DesignationStub =
   & Partial<Omit<Designation, 'designation'>>;
 
 
-
-/** Returns files from given directory (only topmost level though, no recursion). */
-function getFiles(dir: FileSystemDirectoryEntry): Promise<FileSystemFileEntry[]> {
-  return new Promise((resolve, reject) => {
-    dir.createReader().readEntries((results) => {
-      resolve(results.filter(r => r.isFile).map(r => r as FileSystemFileEntry));
-    }, reject);
-  });
-}
-
-
-function decodeFileEntryToString(fileEntry: FileSystemFileEntry): Promise<string> {
-  return new Promise((resolve, reject) => {
-    fileEntry.file((file) => {
-      file.arrayBuffer().then(buf =>
-        resolve(decoder.decode(buf)), reject);
-    }, reject);
-  });
-}
+const parseInput = new TransformStream<File, IntermediateItem>({
+  start() {},
+  async transform(file, controller) {
+    if (file !== null) {
+      const rawXML = decoder.decode(await file.arrayBuffer());
+      for await (const item of convertX3D(rawXML)) {
+        controller.enqueue(item);
+      }
+    } else {
+      controller.terminate();
+    }
+  },
+});
 
 
-const decodeX3DData: InputDecoder<IntermediateItem> = async function * (input) {
-  const files = input.isDirectory
-    ? (await getFiles(input as FileSystemDirectoryEntry))
-    : [input as FileSystemFileEntry];
-  for (const fileEntry of files) {
-    const xmlString = await decodeFileEntryToString(fileEntry);
-    yield * convertX3D(xmlString);
-  }
-}
+const readConcepts = new TransformStream<IntermediateItem, LocalizedConceptData>({
+  start() {},
+  async transform(item, controller) {
+    if (item !== null) {
+      const concept = await parseLocalizedConcept(item);
+      controller.enqueue(concept);
+    } else {
+      controller.terminate();
+    }
+  },
+});
+
+
+// const decodeX3DData: InputDecoder<IntermediateItem> = async function * (input) {
+//   const files = input.isDirectory
+//     ? (await getFiles(input as FileSystemDirectoryEntry))
+//     : [input as FileSystemFileEntry];
+//   for await (const fileEntry of files) {
+//     const xmlString = await decodeFileEntryToString(fileEntry);
+//     yield * convertX3D(xmlString);
+//   }
+// }
 
 
 const convertX3D = async function* (xmlString: string) {
@@ -101,10 +108,7 @@ function * readSimpleType(
 }
 
 
-const parseLocalizedConcept: ItemConvertor<IntermediateItem> =
-async function parseLocalizedConcept(
-  item: IntermediateItem,
-): Promise<LocalizedConceptData> {
+async function parseLocalizedConcept(item: IntermediateItem): Promise<LocalizedConceptData> {
   if (item.el.localName === 'enumeration') {
     const definition = item.el.getAttribute('appinfo');
     const designation = item.el.getAttribute('value');
