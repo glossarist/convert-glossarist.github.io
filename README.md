@@ -45,8 +45,32 @@ Running a command against a subpackage works like this:
 .../migration-adapters$ yarn workspace @riboseinc/glossarist-x3duom compile
 ```
 
+This also applies to commands like `yarn add`, `yarn remove`, etc.
+
 TODO: This example assumes NodeJS is installed on your machine.
 It’s probably possible to do this using the same container as above.
+
+#### Creating a new package
+
+1. Create corresponding directory under `packages/`.
+2. Create a `tsconfig.json`, using an existing package as an example.
+
+   - You will almost certainly extent the repo-wide `tsconfig.json`.
+   - You need to provide the `include` option.
+   - You will often find it necessary to override `compilerOptions.lib`.
+
+3. Create a `package.json`, using an existing package as an example.
+
+   - If you publish the package,
+     its `name` would have to follow `<org namespace>/package-name`.
+     This full name will become the workspace idnetifier you specify when executing
+     `yarn workspace <workspace ID> <some command>`.
+
+   - Otherwise you can use any short name.
+
+#### Building for distribution
+
+TBD.
 
 ### Release flow
 
