@@ -5,12 +5,23 @@
   "packageManager": "yarn@3.6.1",
   "dependencies": {
     "@riboseinc/glossarist-x3duom": "workspace:~",
-    "cmd-ts": "^0.12.1"
+    "cmd-ts": "^0.12.1",
+    "common": "workspace:^"
   },
+  "scripts": {
+    "glossarist-convert": "node compiled/index.js",
+    "compile": "tsc --outdir compiled && chmod +x compiled/index.js",
+    "bundle": "esbuild compiled/index.js --bundle --outfile=index.js"
+  },
+  "bin": {
+    "glossarist-convert": "compiled/index.js"
+  },
+  "main": "compiled/index.js",
   "type": "module",
   "homepage": "https://github.com/glossarist/migration-adapters/tree/main/packages/cli",
   "devDependencies": {
     "@types/node": "^20.4.2",
+    "esbuild": "~0.18",
     "typescript": "~5.1"
   }
 }

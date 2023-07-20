@@ -1,3 +1,2 @@
-export type { Convertor } from './convertors';
-export type { FileConvertor } from './convertors/files';
-export type * from './util';
+export type { Convertor, FileConvertor, File } from './convertors/index.js';
+export type * from './util.js';

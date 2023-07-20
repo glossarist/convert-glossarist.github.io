@@ -1,0 +1,40 @@
+.app {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+
+  > .convertorSelector {
+    flex: 0;
+  }
+  > .instructions {
+    flex: 0;
+  }
+  > .drop {
+    flex: 1;
+  }
+}
+
+.convertorSelector {
+  padding: 2rem;
+  text-align: center;
+}
+
+.convertor {
+}
+
+.instructions {
+  padding: 2rem;
+  text-align: center;
+}
+
+.drop {
+  padding: 2rem;
+  background: whitesmoke;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,9 +1,27 @@
-import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData';
-import type { Designation, Expression } from '@riboseinc/paneron-extension-glossarist/models/concepts';
+import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
+import type { Designation, Expression } from '@riboseinc/paneron-extension-glossarist/models/concepts.js';
 import type { ProgressHandler, FileConvertor } from 'common';
 
 
-export function getConvertor(): FileConvertor<IntermediateItem> {
+/** Item obtained from processing an X3D UOM XML file. */
+interface IntermediateItem {
+  /** <enumeration> */
+  el: Element;
+
+  /** Properties of a designation that cannot be read from XML element itself. */
+  designationProperties: DesignationStub,
+}
+
+
+type DesignationStub =
+    Pick<Designation, 'normative_status'>
+  & Partial<Omit<Designation, 'designation'>>;
+
+
+interface X3DUOMConvertor extends FileConvertor<IntermediateItem> {}
+
+
+export default function getConvertor(): X3DUOMConvertor {
   return {
     label: "X3D UOM XML",
     inputDescription: "An XML file, or a directory with XML files, containing terms in X3D UOM format",
@@ -17,46 +35,58 @@ const decoder = new TextDecoder('utf-8');
 const parser = new DOMParser();
 
 
-interface IntermediateItem {
-  /** <enumeration> */
-  el: Element;
-
-  /** Properties of a designation that cannot be read from XML directly. */
-  designationProperties: DesignationStub,
+const parseInput: X3DUOMConvertor["parseInput"] =
+async function * parseInput(fileGenerator, onProgress) {
+  for await (const file of fileGenerator()) {
+    const rawXML = decoder.decode(file.blob);
+    onProgress?.(`Processing file ${file.name}`);
+    try {
+      const items = convertX3D(rawXML);
+      for await (const item of items) {
+        yield item;
+      }
+    } catch (e) {
+      onProgress?.(`Error processing file ${file.name}: ${(e as any).toString?.() ?? 'no error description'}`);
+    }
+  }
 }
 
 
-type DesignationStub =
-    Pick<Designation, 'normative_status'>
-  & Partial<Omit<Designation, 'designation'>>;
+const readConcepts: X3DUOMConvertor["readConcepts"] =
+async function * readConcepts(itemGenerator, onProgress) {
+  for await (const item of itemGenerator()) {
+    onProgress?.(`Processing <${item.el.localName}>`);
+    yield await parseLocalizedConcept(item);
+  }
+}
 
 
-const parseInput = new TransformStream<File, IntermediateItem>({
-  start() {},
-  async transform(file, controller) {
-    if (file !== null) {
-      const rawXML = decoder.decode(await file.arrayBuffer());
-      for await (const item of convertX3D(rawXML)) {
-        controller.enqueue(item);
-      }
-    } else {
-      controller.terminate();
-    }
-  },
-});
-
-
-const readConcepts = new TransformStream<IntermediateItem, LocalizedConceptData>({
-  start() {},
-  async transform(item, controller) {
-    if (item !== null) {
-      const concept = await parseLocalizedConcept(item);
-      controller.enqueue(concept);
-    } else {
-      controller.terminate();
-    }
-  },
-});
+// const parseInput = new TransformStream<File, IntermediateItem>({
+//   start() {},
+//   async transform(file, controller) {
+//     if (file !== null) {
+//       const rawXML = decoder.decode(await file.arrayBuffer());
+//       for await (const item of convertX3D(rawXML)) {
+//         controller.enqueue(item);
+//       }
+//     } else {
+//       controller.terminate();
+//     }
+//   },
+// });
+// 
+// 
+// const readConcepts = new TransformStream<IntermediateItem, LocalizedConceptData>({
+//   start() {},
+//   async transform(item, controller) {
+//     if (item !== null) {
+//       const concept = await parseLocalizedConcept(item);
+//       controller.enqueue(concept);
+//     } else {
+//       controller.terminate();
+//     }
+//   },
+// });
 
 
 // const decodeX3DData: InputDecoder<IntermediateItem> = async function * (input) {
@@ -72,8 +102,13 @@ const readConcepts = new TransformStream<IntermediateItem, LocalizedConceptData>
 
 const convertX3D = async function* (xmlString: string) {
   const doc = parser.parseFromString(xmlString, 'text/xml');
-  yield * readSimpleType('acronyms', doc.getElementsByName('acronymChoices'), undefined, true);
-  yield * readSimpleType('term', doc.getElementsByName('glossaryChoices'), undefined);
+  const acronymContainers = doc.getElementsByName('acronymChoices');
+  const glossaryContainers = doc.getElementsByName('glossaryChoices');
+  if (acronymContainers.length < 1 && glossaryContainers.length < 1) {
+    throw new Error("Specified file contained neither acronymChoices nor glossaryChoices");
+  }
+  yield * readSimpleType('acronyms', acronymContainers, undefined, true);
+  yield * readSimpleType('term', glossaryContainers, undefined);
 }
 
 
