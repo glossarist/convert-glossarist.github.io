@@ -111,7 +111,7 @@ function * readSimpleType(
 async function parseLocalizedConcept(item: IntermediateItem): Promise<LocalizedConceptData> {
   if (item.el.localName === 'enumeration') {
     const definition = item.el.getAttribute('appinfo');
-    const designation = item.el.getAttribute('value');
+    const designation = item.el.getAttribute('alias') ?? item.el.getAttribute('value');
     const link = item.el.getAttribute('documentation');
     if (definition?.trim() && designation?.trim()) {
       return {
