@@ -11,6 +11,7 @@ export const convertors: Record<string, FileConvertor<any>> = {
 export async function * parse(
   convertorName: string,
   input: (FileSystemFileEntry | FileSystemDirectoryEntry)[],
+  onProgress?: (msg: string) => void,
 ) {
   const convertor = convertors[convertorName];
   if (!convertor) {
@@ -24,10 +25,10 @@ export async function * parse(
   }
 
   function getItemStream() {
-    return convertor.parseInput(getFileStream, console.log);
+    return convertor.parseInput(getFileStream, onProgress);
   }
 
-  for await (const concept of convertor.readConcepts(getItemStream, console.log)) {
+  for await (const concept of convertor.readConcepts(getItemStream, onProgress)) {
     yield concept;
   }
 }

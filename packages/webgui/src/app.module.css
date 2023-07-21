@@ -6,10 +6,10 @@
   flex-flow: column nowrap;
   gap: 1rem;
 
-  > .convertorSelector {
+  > .header {
     flex: 0;
   }
-  > .instructions {
+  > .convertorSelector {
     flex: 0;
   }
   > .drop {
@@ -17,24 +17,32 @@
   }
 }
 
+.header {
+  font-size: 120%;
+  padding: 2rem;
+  line-height: 1.2;
+}
+
 .convertorSelector {
-  padding: 2rem;
-  text-align: center;
-}
-
-.convertor {
-}
-
-.instructions {
-  padding: 2rem;
-  text-align: center;
+  padding: 0 2rem;
 }
 
 .drop {
-  padding: 2rem;
   background: whitesmoke;
   display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  justify-content: center;
+  flex-flow: column-reverse nowrap;
+  text-align: center;
+  position: relative;
+  overflow: auto;
+
+  .spanFull {
+    position: absolute;
+    inset: 2rem;
+  }
+
+  .log {
+    text-align: left;
+    font-size: 90%;
+    padding: 2rem;
+  }
 }

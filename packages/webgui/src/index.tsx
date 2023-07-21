@@ -10,43 +10,91 @@ import { convertors, parse } from './convertors.js';
 
 type Upload = (FileSystemFileEntry | FileSystemDirectoryEntry)[];
 
+
 const encoder = new TextEncoder();
 
 
 const App: React.FC<Record<never, never>> = function () {
-  const [convertorName, ] =
+  const [convertorName, setConvertorName] =
     useState<keyof typeof convertors>(Object.keys(convertors)[0]);
+
+  const [_log, setLog] = useState<string[]>([]);
+
+  function log(msg: string) {
+    setLog(log => [ ...log, msg ]);
+  }
 
   async function handleDrop(upload: Upload) {
     if (upload) {
+      setLog([`Using convertor ${convertorName}`]);
       const results = [];
-      for await (const concept of parse(convertorName, upload)) {
-        results.push(concept);
+      try {
+        for await (const concept of parse(convertorName, upload, log)) {
+          results.push(concept);
+        }
+      } catch (e) {
+        log(`Failed to process upload: ${(e as any).toString?.()}`);
       }
-      fileSave(new Blob(
-        [encoder.encode(JSON.stringify(results))],
-        { type: 'application/json' },
-      ), {
-        fileName: `glossarist-${convertorName}-conversion-result.json`,
-      });
+      if (results.length > 0) {
+        log(`${results.length} terminology records obtained, exporting to JSON…`);
+        fileSave(new Blob(
+          [encoder.encode(JSON.stringify(results))],
+          { type: 'application/json' },
+        ), {
+          fileName: `glossarist-${convertorName}-conversion-result.json`,
+        });
+      } else {
+        log("No results obtained.");
+      }
     }
+  }
+
+  function handleConvertorSelect(evt: React.FormEvent<HTMLSelectElement>) {
+    const convertorName = evt.currentTarget.value;
+    setConvertorName(convertorName);
   }
 
   return (
     <div className={styles.app}>
-      <div className={styles.instructions}>
-        Select the desired convertor and drop files below.
-        Download will be initiated when conversion is complete.
-      </div>
+      <h1 className={styles.header}>Convert concepts to Glossarist format</h1>
       <div
           className={styles.convertorSelector}>
-        <p>Selected convertor:</p>
-        {convertors[convertorName]
-          ? <Convertor convertor={convertors[convertorName]} />
-          : "No convertor is available."}
-        
+        <p>
+          Select the desired convertor and drop files below.
+          Download will be initiated when conversion is complete.
+        </p>
+        <p>
+          Selected convertor:
+          &emsp;
+          <select onChange={handleConvertorSelect} value={convertorName}>
+            {Object.entries(convertors).map(([_convertorName, convertor]) =>
+              <option
+                key={_convertorName}
+                value={_convertorName}
+                label={`${_convertorName} (${convertor.label})`}
+              />
+            )}
+          </select>
+        </p>
       </div>
-      <DropReceiver onDrop={handleDrop} />
+      <div className={styles.drop}>
+        {convertors[convertorName]
+          ? <DropReceiver
+              className={styles.spanFull}
+              onDrop={handleDrop}
+            />
+          : undefined}
+        <div className={styles.log}>
+          {convertors[convertorName]
+            ? _log.length > 0
+              ? _log.map(msg => <div>{msg}</div>)
+              : <>
+                  <em>{convertors[convertorName].inputDescription}</em>
+                  can&nbsp;be dragged&nbsp;into this&nbsp;area
+                </>
+            : <>No convertor is available.</>}
+        </div>
+      </div>
     </div>
   );
 };
@@ -67,7 +115,9 @@ const Convertor: React.FC<{
 
 const DropReceiver: React.FC<{
   onDrop: (input: Upload) => void;
-}> = function ({ onDrop }) {
+  prompt?: JSX.Element;
+  className?: string;
+}> = function ({ onDrop, prompt, className }) {
   function handleDragOver(evt: React.DragEvent) {
     evt.preventDefault();
   }
@@ -80,10 +130,10 @@ const DropReceiver: React.FC<{
   }
   return (
     <div
-        className={styles.drop}
+        className={className}
         onDragOver={handleDragOver}
         onDrop={handleDrop}>
-      Drop stuff here…
+      {prompt ?? <>&nbsp;</>}
     </div>
   );
 };
