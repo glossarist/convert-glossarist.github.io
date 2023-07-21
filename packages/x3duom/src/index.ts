@@ -61,45 +61,6 @@ async function * readConcepts(itemGenerator, onProgress) {
 }
 
 
-// const parseInput = new TransformStream<File, IntermediateItem>({
-//   start() {},
-//   async transform(file, controller) {
-//     if (file !== null) {
-//       const rawXML = decoder.decode(await file.arrayBuffer());
-//       for await (const item of convertX3D(rawXML)) {
-//         controller.enqueue(item);
-//       }
-//     } else {
-//       controller.terminate();
-//     }
-//   },
-// });
-// 
-// 
-// const readConcepts = new TransformStream<IntermediateItem, LocalizedConceptData>({
-//   start() {},
-//   async transform(item, controller) {
-//     if (item !== null) {
-//       const concept = await parseLocalizedConcept(item);
-//       controller.enqueue(concept);
-//     } else {
-//       controller.terminate();
-//     }
-//   },
-// });
-
-
-// const decodeX3DData: InputDecoder<IntermediateItem> = async function * (input) {
-//   const files = input.isDirectory
-//     ? (await getFiles(input as FileSystemDirectoryEntry))
-//     : [input as FileSystemFileEntry];
-//   for await (const fileEntry of files) {
-//     const xmlString = await decodeFileEntryToString(fileEntry);
-//     yield * convertX3D(xmlString);
-//   }
-// }
-
-
 const convertX3D = async function* (xmlString: string) {
   const doc = parser.parseFromString(xmlString, 'text/xml');
   const acronymContainers = doc.getElementsByName('acronymChoices');
