@@ -56,7 +56,11 @@ const readConcepts: X3DUOMConvertor["readConcepts"] =
 async function * readConcepts(itemGenerator, onProgress) {
   for await (const item of itemGenerator()) {
     onProgress?.(`Processing <${item.el.localName}>`);
-    yield await parseLocalizedConcept(item);
+    try {
+      yield await parseLocalizedConcept(item);
+    } catch (e) {
+      onProgress?.(`Failed to process <${item.el.localName}>: ${(e as any)?.toString?.() ?? 'no error information available'}`);
+    }
   }
 }
 
