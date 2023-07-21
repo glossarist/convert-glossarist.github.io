@@ -46,7 +46,7 @@ async function * parseInput(fileGenerator, onProgress) {
         yield item;
       }
     } catch (e) {
-      onProgress?.(`Error processing file ${file.name}: ${(e as any).toString?.() ?? 'no error description'}`);
+      onProgress?.(`Error processing file ${file.name}: ${(e as any).toString?.() ?? 'no error information available'}`);
     }
   }
 }
