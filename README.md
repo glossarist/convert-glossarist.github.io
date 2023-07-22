@@ -9,6 +9,14 @@ a migration adapter for your pre-existing terminology data.
 
 Either Docker or NodeJS 18 with Yarn 2.
 
+### Launching web GUI
+
+If you have Node & Yarn 2:
+
+0. Navigate to `packages/webgui/`
+1. Run `yarn node build.js`
+2. Run `python -m http.server`
+
 ### Setting up LSP in your editor
 
 Without having Node or anything on your computer,
