@@ -1,6 +1,6 @@
 import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
 import type { Designation, Expression } from '@riboseinc/paneron-extension-glossarist/models/concepts.js';
-import type { ProgressHandler, FileConvertor } from 'common';
+import type { FileConvertor } from 'common';
 
 
 /** Item obtained from processing an X3D UOM XML file. */
@@ -38,15 +38,22 @@ const parser = new DOMParser();
 const parseInput: X3DUOMConvertor["parseInput"] =
 async function * parseInput(fileGenerator, onProgress) {
   for await (const file of fileGenerator()) {
+
+    function fileProgress(msg?: string) {
+      const prefix = `Processing file ${file.name}`;
+      onProgress?.(msg ? `${prefix}: ${msg}` : prefix);
+    }
+
     const rawXML = decoder.decode(file.blob);
-    onProgress?.(`Processing file ${file.name}`);
+    fileProgress("Decoded file into string");
+
     try {
-      const items = convertX3D(rawXML);
+      const items = convertX3D(rawXML, fileProgress);
       for await (const item of items) {
         yield item;
       }
     } catch (e) {
-      onProgress?.(`Error processing file ${file.name}: ${(e as any).toString?.() ?? 'no error information available'}`);
+      fileProgress(`Error: ${(e as any).toString?.() ?? "No error information available"}`);
     }
   }
 }
@@ -55,39 +62,56 @@ async function * parseInput(fileGenerator, onProgress) {
 const readConcepts: X3DUOMConvertor["readConcepts"] =
 async function * readConcepts(itemGenerator, onProgress) {
   for await (const item of itemGenerator()) {
-    onProgress?.(`Processing <${item.el.localName}>`);
+    function itemProgress(msg?: string) {
+      const prefix = `Parsing <${item.el.localName}> (${JSON.stringify(item.designationProperties)}) into concept`;
+      onProgress?.(msg ? `${prefix}: ${msg}` : prefix);
+    }
+    itemProgress();
     try {
       yield await parseLocalizedConcept(item);
     } catch (e) {
-      onProgress?.(`Failed to process <${item.el.localName}>: ${(e as any)?.toString?.() ?? 'no error information available'}`);
+      itemProgress(`Error: ${(e as any)?.toString?.() ?? 'No error information available'}`);
     }
   }
 }
 
 
-const convertX3D = async function* (xmlString: string) {
+const convertX3D = async function* (
+  xmlString: string,
+  onProgress?: (msg: string) => void,
+) {
   const doc = parser.parseFromString(xmlString, 'text/xml');
   const acronymContainers = doc.getElementsByName('acronymChoices');
   const glossaryContainers = doc.getElementsByName('glossaryChoices');
   if (acronymContainers.length < 1 && glossaryContainers.length < 1) {
     throw new Error("Specified file contained neither acronymChoices nor glossaryChoices");
   }
-  yield * readSimpleType('acronyms', acronymContainers, undefined, true);
-  yield * readSimpleType('term', glossaryContainers, undefined);
+  yield * readSimpleType(
+    acronymContainers,
+    (msg) => onProgress?.(`Acronyms: ${msg}`),
+    true,
+  );
+  yield * readSimpleType(
+    glossaryContainers,
+    (msg) => onProgress?.(`Glossary: ${msg}`),
+  );
 }
 
 
 function * readSimpleType(
-  elType: string,
   simpleTypeEls: NodeListOf<HTMLElement>,
-  onProgress?: ProgressHandler,
+  onProgress?: (msg: string) => void,
   isAbbreviation?: boolean,
 ) {
-  const progressStage = `processing ${elType}`;
-  for (const [containerIdx, container] of simpleTypeEls.entries()) {
-    for (const [enumIdx, maybeEnumEl] of [...container.children].entries()) {
+  const containerEntries = [...simpleTypeEls.entries()];
+  const total = containerEntries.
+    map(([, el]) => el.children.length).
+    reduce((acc, curr) => acc + curr, 0);
+  for (const [containerIdx, container] of containerEntries) {
+    const children = [...container.children].entries();
+    for (const [enumIdx, maybeEnumEl] of children) {
       const decimalIdx = parseFloat(`${containerIdx + 1}.${enumIdx + 1}`)
-      onProgress?.(progressStage, decimalIdx, undefined);
+      onProgress?.(`<${maybeEnumEl.localName}> ${decimalIdx} or ${total}`);
 
       const expression: Pick<Expression, 'isAbbreviation'> = {}
       if (isAbbreviation) {
