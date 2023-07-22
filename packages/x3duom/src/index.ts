@@ -68,7 +68,7 @@ async function * readConcepts(itemGenerator, onProgress) {
     }
     itemProgress();
     try {
-      yield await parseLocalizedConcept(item);
+      yield await parseLocalizedConcept(item, itemProgress);
     } catch (e) {
       itemProgress(`Error: ${(e as any)?.toString?.() ?? 'No error information available'}`);
     }
@@ -132,12 +132,47 @@ function * readSimpleType(
 }
 
 
-async function parseLocalizedConcept(item: IntermediateItem): Promise<LocalizedConceptData> {
+/**
+ * Matches hashtags and returns them as a list with leading hash character stripped.
+ */
+function extractHashtags(
+  /** Text with possibly some hashtags. */
+  text: string,
+
+  /**
+   * The function will be invoked with a hashtag (complete with hash character).
+   * If it returns a string, it will be used to replace hashtag occurrence.
+   * Allows to optionally replace every hashtag with something else.
+   */
+  onHashtag?: (hashtag: string) => string | undefined,
+): [text: string, hahstags: Set<string>] {
+  const parts = text.split(' ');
+  const tags = new Set<string>();
+  for (const [idx, tag] of parts.filter(p => p.startsWith('#')).entries()) {
+    const replacement = onHashtag?.(tag);
+    if (replacement) {
+      parts.splice(idx, 1, replacement);
+    }
+    tags.add(tag.slice());
+  }
+  return [parts.join(' '), tags];
+}
+
+
+async function parseLocalizedConcept(
+  item: IntermediateItem,
+  onProgress?: (msg: string) => void,
+): Promise<LocalizedConceptData> {
   if (item.el.localName === 'enumeration') {
     const definition = item.el.getAttribute('appinfo');
     const designation = item.el.getAttribute('alias') ?? item.el.getAttribute('value');
     const link = item.el.getAttribute('documentation');
     if (definition?.trim() && designation?.trim()) {
+      const [, links] = extractHashtags(definition);
+      if (links.size > 0) {
+        onProgress?.(`NOTE: Found some links in definition (${[...links]}), doing nothing for now`);
+      }
+
       return {
         language_code: 'eng',
         terms: [{ ...item.designationProperties, designation } as Designation], // TODO: Avoid cast
