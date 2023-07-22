@@ -63,12 +63,13 @@ async function * parseInput(fileGenerator, onProgress) {
 
 const readConcepts: X3DUOMConvertor["readConcepts"] =
 async function * readConcepts(itemGenerator, onProgress) {
+  let idx = 1;
   for await (const item of itemGenerator()) {
     function itemProgress(msg?: string) {
-      const prefix = `Parsing <${item.el.localName}> (${JSON.stringify(item.designationProperties)}) into concept`;
+      const prefix = `Parsing <${item.el.localName}> #${idx}: ${item.id}`;
       onProgress?.(msg ? `${prefix}: ${msg}` : prefix);
     }
-    itemProgress();
+    itemProgress(`Attributes ${JSON.stringify(item.designationProperties)}`);
     try {
       yield [item.id, await parseLocalizedConcept(item, itemProgress)];
     } catch (e) {
@@ -143,27 +144,31 @@ function * readSimpleType(
 
 
 /**
- * Matches hashtags and returns them as a list with leading hash character stripped.
+ * Matches hashtags and returns them as a list with leading hash character
+ * and any trailing punctuation stripped.
  */
 function extractHashtags(
   /** Text with possibly some hashtags. */
   text: string,
 
   /**
-   * The function will be invoked with a hashtag (complete with hash character).
+   * The function will be invoked with raw hashtag
+   * (complete with hash character and any trailing punctuation)
+   * and parsed hashtag (no hash or trailing punctuation).
    * If it returns a string, it will be used to replace hashtag occurrence.
    * Allows to optionally replace every hashtag with something else.
    */
-  onHashtag?: (hashtag: string) => string | undefined,
+    onHashtag?: (rawTag: string, parsedTag: string) => string | undefined,
 ): [text: string, hahstags: Set<string>] {
   const parts = text.split(' ');
   const tags = new Set<string>();
   for (const [idx, tag] of parts.filter(p => p.startsWith('#')).entries()) {
-    const replacement = onHashtag?.(tag);
+    const parsed = tag.slice().replace(/[^\w\s\']|_$/g, "");
+    const replacement = onHashtag?.(tag, parsed);
     if (replacement) {
       parts.splice(idx, 1, replacement);
     }
-    tags.add(tag.slice());
+    tags.add(parsed);
   }
   return [parts.join(' '), tags];
 }
@@ -180,7 +185,7 @@ async function parseLocalizedConcept(
     if (definition?.trim() && designation?.trim()) {
       const [, links] = extractHashtags(definition);
       if (links.size > 0) {
-        onProgress?.(`NOTE: Found some links in definition (${[...links]}), doing nothing for now`);
+        onProgress?.(`NOTE: Got links in definition (${[...links].join(', ')}), doing nothing for now`);
       }
 
       return {
