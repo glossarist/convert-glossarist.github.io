@@ -5,6 +5,8 @@ import type { FileConvertor } from 'common';
 
 /** Item obtained from processing an X3D UOM XML file. */
 interface IntermediateItem {
+  id: string;
+
   /** <enumeration> */
   el: Element;
 
@@ -68,7 +70,7 @@ async function * readConcepts(itemGenerator, onProgress) {
     }
     itemProgress();
     try {
-      yield await parseLocalizedConcept(item, itemProgress);
+      yield [item.id, await parseLocalizedConcept(item, itemProgress)];
     } catch (e) {
       itemProgress(`Error: ${(e as any)?.toString?.() ?? 'No error information available'}`);
     }
@@ -111,22 +113,30 @@ function * readSimpleType(
     const children = [...container.children].entries();
     for (const [enumIdx, maybeEnumEl] of children) {
       const decimalIdx = parseFloat(`${containerIdx + 1}.${enumIdx + 1}`)
-      onProgress?.(`<${maybeEnumEl.localName}> ${decimalIdx} or ${total}`);
 
-      const expression: Pick<Expression, 'isAbbreviation'> = {}
-      if (isAbbreviation) {
-        expression.isAbbreviation = true;
+      const val = maybeEnumEl.getAttribute('value');
+      if (val) {
+        onProgress?.(`<${maybeEnumEl.localName}> ${decimalIdx} or ${total}`);
+
+        const expression: Pick<Expression, 'isAbbreviation'> = {}
+        if (isAbbreviation) {
+          expression.isAbbreviation = true;
+        }
+
+        const item: IntermediateItem = {
+          id: val,
+          el: maybeEnumEl,
+          designationProperties: {
+            normative_status: 'preferred',
+            type: 'expression',
+            ...expression,
+          },
+        };
+        yield item;
+
+      } else {
+        onProgress?.(`Error: Empty value attribute`);
       }
-
-      const item: IntermediateItem = {
-        el: maybeEnumEl,
-        designationProperties: {
-          normative_status: 'preferred',
-          type: 'expression',
-          ...expression,
-        },
-      };
-      yield item;
     }
   }
 }

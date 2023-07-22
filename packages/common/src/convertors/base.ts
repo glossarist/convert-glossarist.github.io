@@ -19,9 +19,13 @@ export interface Convertor<
   parseInput: (input: () => AsyncGenerator<InputItem, void, undefined>, onProgress?: (msg: string) => void) =>
     AsyncGenerator<IntermediateItem, void, undefined>;
 
-  /** Parses intermediate structures into concepts. */
+  /**
+   * Parses intermediate structures into pairs of [identifier, concept].
+   *
+   * The identifier may be used for internal links.
+   */
   readConcepts: (input: () => AsyncGenerator<IntermediateItem, void, undefined>, onProgress?: (msg: string) => void) =>
-    AsyncGenerator<LocalizedConceptData, void, undefined>;
+    AsyncGenerator<[string, LocalizedConceptData], void, undefined>;
 
   // Can’t use TransformStream due to Node/web typing clash,
   // and we want to use convertors from CLI and Web,
