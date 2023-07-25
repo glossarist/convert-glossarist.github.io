@@ -9,6 +9,10 @@ a migration adapter for your pre-existing terminology data.
 
 Either Docker or NodeJS 18 with Yarn 2.
 
+### Compiling
+
+To compile all packages, run `yarn compile-all`.
+
 ### Launching web GUI
 
 If you have Node & Yarn 2:

@@ -13,6 +13,7 @@
   },
   "scripts": {
     "new-version": "lerna version",
+    "compile-all": "yarn workspaces foreach -ptvA run compile",
     "new-publish": "lerna publish from-package",
     "preview:new-version": "lerna version --dry-run",
     "run-tests": "lerna run test"
