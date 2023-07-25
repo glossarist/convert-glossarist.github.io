@@ -1,14 +1,14 @@
 import { command, run, string, positional } from 'cmd-ts';
 import { ExistingPath, Directory } from 'cmd-ts/batteries/fs';
 
-import type { BlobConvertor } from 'common';
+import type { FileConvertor } from 'common';
 import { fsPathToFiles } from './fs.js';
 
 // TODO: Make x3duom work in Node by supplying some sort of DOMParser
 // import x3duom from '@riboseinc/glossarist-x3duom';
 
 
-const convertors: Record<string, BlobConvertor<any>> = {
+const convertors: Record<string, FileConvertor<any>> = {
   // x3duom: x3duom(),
 };
 
@@ -34,7 +34,7 @@ const app = command({
     }
 
     function getItemStream() {
-      return convertor.parseInput(getFileStream);
+      return convertor!.parseInput(getFileStream);
     }
 
     for await (const concept of convertor.readConcepts(getItemStream)) {
