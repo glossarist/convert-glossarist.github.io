@@ -7,7 +7,8 @@
   "main": "compiled/index.ts",
   "type": "module",
   "scripts": {
-    "compile": "tsc --outdir compiled"
+    "compile": "tsc --outdir compiled",
+    "clean": "rm -r compiled"
   },
   "devDependencies": {
     "@riboseinc/paneron-extension-glossarist": "^2.0.11",

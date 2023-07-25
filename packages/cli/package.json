@@ -12,6 +12,7 @@
     "glossarist-convert": "node compiled/index.js",
     "compile": "tsc --outdir compiled && chmod +x compiled/index.js",
     "bundle": "esbuild compiled/index.js --bundle --outfile=index.js"
+    "clean": "rm -r compiled"
   },
   "bin": {
     "glossarist-convert": "compiled/index.js"
