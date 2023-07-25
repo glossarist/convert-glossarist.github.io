@@ -4,7 +4,7 @@
   "license": "MIT",
   "packageManager": "yarn@3.6.1",
   "homepage": "https://github.com/glossarist/migration-adapters/tree/main/packages/common",
-  "main": "compiled/index.ts",
+  "main": "compiled/index.js",
   "type": "module",
   "scripts": {
     "compile": "tsc --outdir compiled",
