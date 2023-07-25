@@ -19,6 +19,7 @@
 
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
+    "noUncheckedIndexedAccess": true,
 
     "newLine": "lf",
 
