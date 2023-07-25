@@ -1,4 +1,5 @@
 import type { FileConvertor } from 'common';
+import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
 import x3duom from '@riboseinc/glossarist-x3duom';
 import { parseFilesFromUpload } from './uploads.js';
 
@@ -11,6 +12,7 @@ export const convertors: Record<string, FileConvertor<any>> = {
 export async function * parse(
   convertorName: string,
   input: (FileSystemFileEntry | FileSystemDirectoryEntry)[],
+  linkURNPrefix?: string,
   onProgress?: (msg: string) => void,
 ) {
   const convertor = convertors[convertorName];
@@ -25,10 +27,29 @@ export async function * parse(
   }
 
   function getItemStream() {
-    return convertor.parseInput(getFileStream, onProgress);
+    return convertor!.parseInput(getFileStream, { onProgress });
   }
 
-  for await (const concept of convertor.readConcepts(getItemStream, onProgress)) {
-    yield concept;
+  const conceptStream = convertor.readConcepts(getItemStream, { onProgress });
+
+  if (convertor.parseLinks) {
+    const concepts: Record<string, LocalizedConceptData> = {};
+    for await (const [id, concept] of conceptStream) {
+      concepts[id] = concept;
+    }
+    function getConcepts<T extends string[]>(ids: T): { [K in keyof T]: LocalizedConceptData | null } {
+      return ids.map(id => concepts[id] ?? null) as { [K in keyof T]: LocalizedConceptData | null };
+    }
+    for (const localizedConceptWithID of Object.entries(concepts)) {
+      const [, concept] = localizedConceptWithID;
+      for (const val of [...concept.definition, ...concept.notes, ...concept.examples]) {
+        val.content = convertor.parseLinks(val.content, { getConcepts, linkURNPrefix });
+      }
+      yield localizedConceptWithID;
+    }
+  } else {
+    for await (const conceptWithID of conceptStream) {
+      yield conceptWithID;
+    }
   }
 }

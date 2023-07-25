@@ -29,6 +29,7 @@ export default function getConvertor(): X3DUOMConvertor {
     inputDescription: "An XML file, or a directory with XML files, containing terms in X3D UOM format",
     parseInput,
     readConcepts,
+    parseLinks,
   };
 }
 
@@ -38,12 +39,12 @@ const parser = new DOMParser();
 
 
 const parseInput: X3DUOMConvertor["parseInput"] =
-async function * parseInput(fileGenerator, onProgress) {
+async function * parseInput(fileGenerator, opts) {
   for await (const file of fileGenerator()) {
 
     function fileProgress(msg?: string) {
       const prefix = `Processing file ${file.name}`;
-      onProgress?.(msg ? `${prefix}: ${msg}` : prefix);
+      opts?.onProgress?.(msg ? `${prefix}: ${msg}` : prefix);
     }
 
     const rawXML = decoder.decode(file.blob);
@@ -61,17 +62,55 @@ async function * parseInput(fileGenerator, onProgress) {
 }
 
 
+const parseLinks: X3DUOMConvertor["parseLinks"] =
+function parseLinks(text, opts) {
+  if (opts?.linkURNPrefix && !opts.linkURNPrefix.endsWith(':')) {
+    throw new Error("Invalid URN prefix given (must end with a colon)");
+  }
+
+  const handleTag = opts.linkURNPrefix
+    ? function linkForTag(
+        rawTag: string,
+
+        /**
+         * Parsed X3D tag is assumed to reference concept identifier.
+         * E.g., #FooBar means there is expected to be
+         * a concept with identifier `FooBar`.
+         */
+        parsedTag: string,
+      ) {
+        const [concept] = opts.getConcepts([parsedTag]);
+        if (concept) {
+          const designation = concept.terms[0]?.designation;
+          if (designation) {
+            return `{{${opts.linkURNPrefix!}${parsedTag},${designation}}}`;
+          } else {
+            return `{{${opts.linkURNPrefix!}${parsedTag}}}`;
+          }
+        }
+        return;
+      }
+    : undefined;
+  const [newText, ] = extractHashtags(text, handleTag);
+  return newText;
+}
+
+
 const readConcepts: X3DUOMConvertor["readConcepts"] =
-async function * readConcepts(itemGenerator, onProgress) {
+async function * readConcepts(itemGenerator, opts) {
   let idx = 1;
+
   for await (const item of itemGenerator()) {
     function itemProgress(msg?: string) {
       const prefix = `Parsing <${item.el.localName}> #${idx}: ${item.id}`;
-      onProgress?.(msg ? `${prefix}: ${msg}` : prefix);
+      opts?.onProgress?.(msg ? `${prefix}: ${msg}` : prefix);
     }
     itemProgress(`Attributes ${JSON.stringify(item.designationProperties)}`);
     try {
-      yield [item.id, await parseLocalizedConcept(item, itemProgress)];
+      yield [
+        item.id,
+        await parseLocalizedConcept(item, itemProgress),
+      ];
     } catch (e) {
       itemProgress(`Error: ${(e as any)?.toString?.() ?? 'No error information available'}`);
     }
@@ -162,13 +201,16 @@ function extractHashtags(
 ): [text: string, hahstags: Set<string>] {
   const parts = text.split(' ');
   const tags = new Set<string>();
-  for (const [idx, tag] of parts.filter(p => p.startsWith('#')).entries()) {
-    const parsed = tag.slice().replace(/[^\w\s\']|_$/g, "");
-    const replacement = onHashtag?.(tag, parsed);
-    if (replacement) {
-      parts.splice(idx, 1, replacement);
+  for (const [idx, part] of parts.entries()) {
+    if (part.startsWith('#')) {
+      const tag = part;
+      const parsed = tag.slice().replace(/[^\w\s\']|_$/g, "");
+      const replacement = onHashtag?.(tag, parsed);
+      if (replacement) {
+        parts.splice(idx, 1, replacement);
+      }
+      tags.add(parsed);
     }
-    tags.add(parsed);
   }
   return [parts.join(' '), tags];
 }
@@ -176,18 +218,14 @@ function extractHashtags(
 
 async function parseLocalizedConcept(
   item: IntermediateItem,
-  onProgress?: (msg: string) => void,
+
+  onProgress: ((msg: string) => void) | undefined,
 ): Promise<LocalizedConceptData> {
   if (item.el.localName === 'enumeration') {
     const definition = item.el.getAttribute('appinfo');
     const designation = item.el.getAttribute('alias') ?? item.el.getAttribute('value');
     const link = item.el.getAttribute('documentation');
     if (definition?.trim() && designation?.trim()) {
-      const [, links] = extractHashtags(definition);
-      if (links.size > 0) {
-        onProgress?.(`NOTE: Got links in definition (${[...links].join(', ')}), doing nothing for now`);
-      }
-
       return {
         language_code: 'eng',
         terms: [{ ...item.designationProperties, designation } as Designation], // TODO: Avoid cast
