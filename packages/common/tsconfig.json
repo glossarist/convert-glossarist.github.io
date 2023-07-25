@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src/**/*"],
   "compilerOptions": {
-    "lib": ["es2022", "dom", "dom.iterable"]
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "skipLibCheck": true
   }
 }
