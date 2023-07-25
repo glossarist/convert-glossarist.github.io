@@ -10,7 +10,7 @@
   },
   "scripts": {
     "glossarist-convert": "node compiled/index.js",
-    "compile": "tsc --outdir compiled && chmod +x compiled/index.js",
+    "compile": "tsc --outdir compiled",
     "clean": "rm -r compiled"
   },
   "bin": {
