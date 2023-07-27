@@ -33,31 +33,42 @@ const App: React.FC<Record<never, never>> = function () {
   async function handleDrop(upload: Upload) {
     if (upload) {
       setLog([`Using convertor ${convertorName}`]);
-      const results = [];
+      const results: Map<string, any> = new Map();
+      let count: number = 0;
       const conceptStream = parse(convertorName, upload, linkPrefix, log);
       try {
         if (emitFormat === 'registerItemList') {
+          results.set('registerItems', {});
           for await (const registerItem of asRegisterItems(conceptStream)) {
-            results.push(registerItem);
+            for (const [classID, item] of Object.entries(registerItem)) {
+              const items = results.get('registerItems');
+              results.set('registerItems', {
+                ...items,
+                [classID]: [ ...(items[classID] ?? []), item ],
+              });
+              count += 1;
+            }
           }
         } else {
           for await (const concept of conceptStream) {
-            results.push(concept);
+            results.set('concepts', [...(results.get('concepts') ?? []), concept]);
+            count += 1;
           }
         }
       } catch (e) {
         log(`Failed to process upload: ${(e as any).toString?.()}`);
-      }
-      if (results.length > 0) {
-        log(`${results.length} terminology records obtained, exporting to JSON…`);
-        fileSave(new Blob(
-          [encoder.encode(JSON.stringify(results))],
-          { type: 'application/json' },
-        ), {
-          fileName: `glossarist-${convertorName}-conversion-result.json`,
-        });
-      } else {
-        log("No results obtained.");
+      } finally {
+        if (count > 0) {
+          log(`${count} items obtained; saving to JSON`);
+          fileSave(new Blob(
+            [encoder.encode(JSON.stringify(Object.fromEntries(results.entries())))],
+            { type: 'application/json' },
+          ), {
+            fileName: `glossarist-${convertorName}-conversion-result.json`,
+          });
+        } else {
+          log("No results obtained.");
+        }
       }
     }
   }
