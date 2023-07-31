@@ -145,7 +145,11 @@ const App: React.FC<Record<never, never>> = function () {
         <div className={styles.log}>
           {convertor
             ? _log.length > 0
-              ? _log.map(msg => <div>{msg}</div>)
+              ? _log.map((msg, idx) =>
+                  <div key={idx}>
+                    {msg}
+                  </div>
+                )
               : <>
                   <em>{convertor.inputDescription}</em>
                   can&nbsp;be dragged&nbsp;into this&nbsp;area
