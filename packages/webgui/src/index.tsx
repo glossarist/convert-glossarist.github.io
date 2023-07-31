@@ -152,6 +152,7 @@ const App: React.FC<Record<never, never>> = function () {
                 )
               : <>
                   <em>{convertor.inputDescription}</em>
+                  <br />
                   can&nbsp;be dragged&nbsp;into this&nbsp;area
                 </>
             : <>No convertor is available.</>}
