@@ -5,49 +5,99 @@ a migration adapter for your pre-existing terminology data.
 
 ## Development
 
+This is a TypeScript monorepo.
+
+The packages include:
+
+- Core logic for converting from different formats to Glossarist
+- Common interfaces and tools
+- Web GUI and in future CLI for invoking those adapters/convertors
+
+Right now, packages are not published separately.
+Some packages may be published separately in future,
+while other packages (e.g., webgui or cli)
+may only be deployed or distributed.
+
 ### Pre-requisites
 
-Either Docker or NodeJS 18 with Yarn 2.
+Below instructions will expect you to either use
+NodeJS 18 with Yarn 3+ on your host machine (“host”)
+or to have Docker (e.g., as Docker Desktop).
 
-### Compiling
+TODO: ways to invoke through Docker are a bit long,
+perhaps there could be a Makefile or something.
 
-To compile all packages, run `yarn compile-all`.
+#### Preparing a Docker image
 
-### Launching web GUI
+Project includes a simple `tsls.Dockerfile`,
+by default it runs TypeScript language server
+but the command can be overridden (see examples below).
 
-If you have Node & Yarn 2:
-
-0. Navigate to `packages/webgui/`
-1. Run `yarn node build.js`
-2. Run `python -m http.server`
-
-### Setting up LSP in your editor
-
-Without having Node or anything on your computer,
-can run an LSP server using this simple Dockerfile:
-
-```dockerfile
-FROM node:18.16.1
-ARG project_path
-WORKDIR ${project_path:?}
-RUN corepack enable
-RUN corepack prepare yarn@stable --activate
-CMD ["yarn", "run", "typescript-language-server", "--stdio"]
-```
-
-Which you can build and run with these commands
-executed in repository root:
+Build it like this, executed in repository root:
 
 ```
-docker build --build-arg "project_path=$(pwd)" -t "<your label>" .
-docker container run --interactive --rm --network=none --workdir="$(pwd)" --volume="$(pwd):$(pwd):ro" "<your label>"
+docker build -f tsls.Dockerfile --build-arg "project_path=$(pwd)" -t "<your-image-label>" .
 ```
+
+### Configuring LSP in your editor
+
+Docker: configure your editor to run the container.
+This will mount project root in read-only mode at the same path,
+so that LSP hints work seamlessly:
+
+```
+docker container run --interactive --rm --network=none \
+   --workdir="$(pwd)" \
+   --volume="$(pwd):$(pwd):ro" \
+   "<your-image-label>"
+```
+
+### Building Web GUI
+
+Host: `yarn compile-all`
+
+Docker:
+
+```
+docker container run --interactive --network=none \
+   --workdir="$(pwd)" \
+   --volume="$(pwd):$(pwd):ro" \
+   --volume="$(pwd)/webgui-dist:/tmp/dist" \
+   "<your-image-label>" \
+   yarn workspace webgui build --distdir "/tmp/dist" --debug
+```
+
+This will output Web GUI files, ready to serve,
+in `webgui-dist` directory under repository root.
+
+### Compiling all
+
+Host: to compile all packages, run `yarn compile-all`;
+to compile a single package, run `yarn workspace <package> compile`
+(it may fail if local dependencies were not compiled).
+
+Docker: to compile all, run:
+
+```
+docker container run --interactive --network=none \
+   --workdir="$(pwd)" \
+   --volume="$(pwd):$(pwd)" \
+   "<your-image-label>" \
+   yarn compile-all
+```
+
+NOTE: This command mounts the volume in **read-write** mode,
+because the way scripts work currently requires `tsc` to be able
+to write to each package’s `compiled` directory.
+Entry points in each `package.json` are specified as `compiled/...`.
+
 
 ### Making TS see changes across packages
 
 Say you’re working on two packages in this repo, and need package A
 to see changes in package B without publishing anything on NPM.
-Run the `compile` command against package B’s workspace.
+Run the `compile` command against package B’s workspace,
+or just compile all packages.
 
 ### Working with Yarn monorepo
 
