@@ -86,10 +86,12 @@ async function main() {
 
   const { values } = parseArgs({
     options: {
-      serve: { type: 'boolean' },
-      port: { type: 'string' },
       debug: { type: 'boolean' },
       verbose: { type: 'boolean' },
+
+      // See serve() & watchAndReload()
+      serve: { type: 'boolean' },
+      port: { type: 'string' },
 
       // See BuildOptions.distdir
       distdir: { type: 'string' },
