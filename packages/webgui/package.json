@@ -7,6 +7,8 @@
   "main": "src/index.tsx",
   "type": "module",
   "scripts": {
+    "build": "yarn node compiled/scripts/build.js",
+    "serve": "yarn node compiled/scripts/build.js --serve",
     "compile": "tsc --outdir compiled",
     "clean": "rm -r compiled dist"
   },
