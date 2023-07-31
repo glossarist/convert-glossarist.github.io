@@ -4,7 +4,6 @@ import { parseArgs } from 'node:util';
 import { parse as parseURL, fileURLToPath } from 'node:url'
 import { createServer } from 'node:http';
 import { build as esbuild, type LogLevel as ESBuildLogLevel } from 'esbuild';
-import CssModulesPlugin from 'esbuild-css-modules-plugin';
 
 
 type LogLevel = Extract<ESBuildLogLevel, 'debug' | 'info' | 'error' | 'silent'>;
@@ -63,13 +62,12 @@ async function buildJS(distdir: string, srcdir: string, logLevel: LogLevel) {
     outdir: distdir,
     write: true,
     loader: {
+      '.css': 'local-css',
       // '.jpg': 'file',
       // '.png': 'file',
     },
     logLevel,
-    plugins: [
-      CssModulesPlugin(),
-    ],
+    plugins: [],
   });
 }
 
