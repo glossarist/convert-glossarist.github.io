@@ -73,6 +73,7 @@ async function buildJS(distdir: string, srcdir: string, logLevel: LogLevel) {
 
 
 // Run as CLI?
+// ===========
 
 const pathToThisFile = resolve(fileURLToPath(import.meta.url));
 const pathPassedToNode = process.argv[1]
