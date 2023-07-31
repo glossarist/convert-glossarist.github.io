@@ -1,5 +1,6 @@
 import { join, resolve, extname } from 'node:path';
 import { copyFile, readFile, mkdir, watch, access, constants } from 'node:fs/promises';
+import { fstatSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { parse as parseURL, fileURLToPath } from 'node:url'
 import { createServer } from 'node:http';
@@ -75,14 +76,7 @@ async function buildJS(distdir: string, srcdir: string, logLevel: LogLevel) {
 // Run as CLI?
 // ===========
 
-const pathToThisFile = resolve(fileURLToPath(import.meta.url));
-const pathPassedToNode = process.argv[1]
-  ? resolve(process.argv[1])
-  : undefined;
-const cliMode = pathPassedToNode
-  ? pathToThisFile.includes(pathPassedToNode)
-  : undefined;
-if (cliMode) {
+if (isCLI()) {
   await main();
 }
 
@@ -96,11 +90,14 @@ async function main() {
       port: { type: 'string' },
       debug: { type: 'boolean' },
       verbose: { type: 'boolean' },
+
+      // See BuildOptions.distdir
+      distdir: { type: 'string' },
     },
   });
 
   const buildOpts: BuildOptions = {
-    distdir: join('.', 'dist'),
+    distdir: values.distdir ?? join('.', 'dist'),
     srcdir: join('.', 'src'),
     pubdir: join('.', 'public'),
     logLevel:
@@ -265,4 +262,31 @@ function makeSequential
     workQueue = result.then(noop, noop);
     return result;
   };
+}
+
+/**
+ * Returns true if we are in CLI mode,
+ * either via pipe or normal invocation as `node build.js`.
+ */
+function isCLI(): boolean {
+  if (import.meta.url) {
+    // Simple case is if we have this set
+    const pathToThisFile = resolve(fileURLToPath(import.meta.url));
+    const pathPassedToNode = process.argv[1]
+      ? resolve(process.argv[1])
+      : undefined;
+    return (pathPassedToNode
+      ? pathToThisFile.includes(pathPassedToNode)
+      : false);
+  } else {
+    // Check if Node is reading from stdin
+    // (e.g., `esbuild build.ts | node --input-type=module -`)
+    // by checking if there’s inbound or outbound pipe
+    // (inbound pipe should be enough but doesn’t always work,
+    // maybe that’s an issue with running Node as `yarn node`
+    // which we need to do to have environment set up)
+    const pipeIn = fstatSync(0);
+    const pipeOut = fstatSync(1);
+    return pipeIn.isFIFO() || pipeOut.isFIFO();
+  }
 }
