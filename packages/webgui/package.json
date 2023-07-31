@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "compile": "tsc --outdir compiled",
-    "clean": "rm -r compiled"
+    "clean": "rm -r compiled dist"
   },
   "dependencies": {
     "@riboseinc/glossarist-x3duom": "workspace:~",
