@@ -1,6 +1,6 @@
-import type { FileConvertor } from 'common';
+import type { FileConvertor } from '../../common/src/index.js';
 import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
-import x3duom from '@riboseinc/glossarist-x3duom';
+import x3duom from '../../x3duom/src/index.js';
 import { parseFilesFromUpload } from './uploads.js';
 
 

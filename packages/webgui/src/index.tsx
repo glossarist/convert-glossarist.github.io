@@ -4,7 +4,7 @@ import { fileSave } from 'browser-fs-access';
 
 import styles from './app.module.css';
 import { convertors, parse } from './convertors.js';
-import { asRegisterItems } from 'common';
+import { asRegisterItems } from '../../common/src/index.js';
 
 
 type Upload = (FileSystemFileEntry | FileSystemDirectoryEntry)[];

@@ -7,9 +7,9 @@
   "main": "src/index.tsx",
   "type": "module",
   "scripts": {
-    "build": "yarn node compiled/scripts/build.js",
-    "serve": "yarn node compiled/scripts/build.js --serve",
     "compile": "tsc --outdir compiled",
+    "build": "cat src/scripts/build.ts | esbuild --loader=ts | yarn node --input-type=module -",
+    "serve": "yarn build --serve",
     "clean": "rm -r compiled dist"
   },
   "dependencies": {
