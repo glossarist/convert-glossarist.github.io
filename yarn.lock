@@ -391,6 +391,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@riboseinc/paneron-registry-kit@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "@riboseinc/paneron-registry-kit@npm:2.1.2"
+  checksum: aa2cf2c9f173dc12771c007b08e54dd129a39512a374e4ecc83f25f42231de6043d088c50d6eb3aacb9c81038e482c44adf504cfa02bc6ec7e525250f54641ab
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -719,7 +726,7 @@ __metadata:
   resolution: "common@workspace:packages/common"
   dependencies:
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
-    "@riboseinc/paneron-registry-kit": ^2.1.1
+    "@riboseinc/paneron-registry-kit": ^2.1.2
     "@types/node": ^18
     typescript: ~5.1
   languageName: unknown

@@ -504,6 +504,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@riboseinc/paneron-registry-kit", "npm:2.1.1"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["npm:2.1.2", {\
+          "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.1.2-efce0311db-aa2cf2c9f1.zip/node_modules/@riboseinc/paneron-registry-kit/",\
+          "packageDependencies": [\
+            ["@riboseinc/paneron-registry-kit", "npm:2.1.2"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["@tootallnate/once", [\
@@ -876,7 +883,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["common", "workspace:packages/common"],\
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
-            ["@riboseinc/paneron-registry-kit", "npm:2.1.1"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.1.2"],\
             ["@types/node", "npm:18.16.19"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
           ],\
