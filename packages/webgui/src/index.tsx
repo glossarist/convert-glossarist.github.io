@@ -4,7 +4,7 @@ import { fileSave } from 'browser-fs-access';
 
 import styles from './app.module.css';
 import { convertors, parse } from './convertors.js';
-import { asRegisterItems } from '../../common/src/index.js';
+import { asProposal, processLinks, asRegisterItems } from '../../common/src/index.js';
 
 
 type Upload = (FileSystemFileEntry | FileSystemDirectoryEntry)[];
@@ -20,9 +20,11 @@ const App: React.FC<Record<never, never>> = function () {
   const [convertorName, setConvertorName] =
     useState<keyof typeof convertors>(Object.keys(convertors)[0]!);
 
-  const [emitFormat, setEmitFormat] = useState<'conceptList' | 'registerItemList'>('registerItemList');
+  const [emitFormat, setEmitFormat] = useState<'conceptList' | 'proposal'>('proposal');
 
   const [linkPrefix, setLinkPrefix] = useState<string>(DEFAULT_LINK_URN_PREFIX);
+  const [gitUsername, setGitUsername] = useState<string>('');
+  const [registerVersion, setRegisterVersion] = useState<string>('');
 
   const [_log, setLog] = useState<string[]>([]);
 
@@ -37,18 +39,24 @@ const App: React.FC<Record<never, never>> = function () {
       let count: number = 0;
       const conceptStream = parse(convertorName, upload, linkPrefix, log);
       try {
-        if (emitFormat === 'registerItemList') {
-          results.set('registerItems', {});
-          for await (const registerItem of asRegisterItems(conceptStream)) {
-            for (const [classID, item] of Object.entries(registerItem)) {
-              const items = results.get('registerItems');
-              results.set('registerItems', {
-                ...items,
-                [classID]: [ ...(items[classID] ?? []), item ],
-              });
-              count += 1;
-            }
-          }
+        if (emitFormat === 'proposal') {
+          const stream = canHandleLinks
+            ? processLinks(convertor.parseLinks!, asRegisterItems(conceptStream), {
+                linkURNPrefix: linkPrefix,
+                onProgress: function (msg) {
+                  log(`Parse links: ${msg}`);
+                },
+              })
+            : asRegisterItems(conceptStream);
+          const { proposalDraft, itemPayloads } = await asProposal(stream, {
+            submittingStakeholderGitServerUsername: gitUsername,
+            registerVersion,
+          }, {
+            onProgress: function (msg) { log(`Prepare proposal: ${msg}`); },
+          });
+          results.set('proposalDraft', proposalDraft);
+          results.set('itemPayloads', itemPayloads);
+          count += 1;
         } else {
           for await (const concept of conceptStream) {
             results.set('concepts', [...(results.get('concepts') ?? []), concept]);
@@ -79,6 +87,7 @@ const App: React.FC<Record<never, never>> = function () {
   }
 
   const convertor = convertors[convertorName];
+  const canHandleLinks = (convertor?.parseLinks && emitFormat === 'proposal');
 
   return (
     <div className={styles.app}>
@@ -104,36 +113,59 @@ const App: React.FC<Record<never, never>> = function () {
               />
             )}
           </select>
-          {convertor?.parseLinks
-            ? <>
-                &emsp;
-                <label htmlFor="linkURNPrefix">URN prefix for internal links:</label>
-                &ensp;
-                <input
-                  type="text"
-                  id="linkURNPrefix"
-                  value={linkPrefix}
-                  onChange={evt => setLinkPrefix(evt.currentTarget.value)}
-                />
-              </>
-            : null}
         </p>
         <p>
-          <label htmlFor="emitRegisterItems">Output as register items:</label>
+          <label htmlFor="emitProposal">Output as register change proposal:</label>
           &emsp;
           <input
             type="checkbox"
-            id="emitRegisterItems"
-            checked={emitFormat === 'registerItemList'}
+            id="emitProposal"
+            checked={emitFormat === 'proposal'}
             onChange={() => {
-              if (emitFormat === 'registerItemList') {
+              if (emitFormat === 'proposal') {
                 setEmitFormat('conceptList')
               } else {
-                setEmitFormat('registerItemList')
+                setEmitFormat('proposal')
               }
             }}
           />
         </p>
+        <ul className={emitFormat !== 'proposal' ? styles.hidden : undefined}>
+          <li>
+            &emsp;
+            <label htmlFor="linkURNPrefix">URN prefix for internal links:</label>
+            &ensp;
+            <input
+              disabled={!canHandleLinks}
+              type="text"
+              id="linkURNPrefix"
+              value={canHandleLinks ? linkPrefix : "(unavailable)"}
+              onChange={evt => setLinkPrefix(evt.currentTarget.value)}
+            />
+          </li>
+          <li>
+            &emsp;
+            <label htmlFor="registerVersion">Register version:</label>
+            &ensp;
+            <input
+              type="text"
+              id="registerVersion"
+              value={registerVersion}
+              onChange={evt => setRegisterVersion(evt.currentTarget.value)}
+            />
+          </li>
+          <li>
+            &emsp;
+            <label htmlFor="gitUsername">Submitter’s version control system server username:</label>
+            &ensp;
+            <input
+              type="text"
+              id="gitUsername"
+              value={gitUsername}
+              onChange={evt => setGitUsername(evt.currentTarget.value)}
+            />
+          </li>
+        </ul>
       </div>
       <div className={styles.drop}>
         {convertor
@@ -146,7 +178,11 @@ const App: React.FC<Record<never, never>> = function () {
           {convertor
             ? _log.length > 0
               ? _log.map((msg, idx) =>
-                  <div key={idx}>
+                  <div
+                      key={idx}
+                      className={msg.toLowerCase().indexOf('error') >= 0
+                        ? styles.inBold
+                        : undefined}>
                     {msg}
                   </div>
                 )

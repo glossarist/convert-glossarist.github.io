@@ -46,3 +46,11 @@
     padding: 2rem;
   }
 }
+
+.hidden {
+  display: none;
+}
+
+.inBold {
+  font-weight: bold;
+}
