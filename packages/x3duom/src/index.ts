@@ -63,35 +63,11 @@ async function * parseInput(fileGenerator, opts) {
 
 
 const parseLinks: X3DUOMConvertor["parseLinks"] =
-function parseLinks(text, opts) {
-  if (opts?.linkURNPrefix && !opts.linkURNPrefix.endsWith(':')) {
-    throw new Error("Invalid URN prefix given (must end with a colon)");
-  }
-
-  const handleTag = opts.linkURNPrefix
-    ? function linkForTag(
-        rawTag: string,
-
-        /**
-         * Parsed X3D tag is assumed to reference concept identifier.
-         * E.g., #FooBar means there is expected to be
-         * a concept with identifier `FooBar`.
-         */
-        parsedTag: string,
-      ) {
-        const [concept] = opts.getConcepts([parsedTag]);
-        if (concept) {
-          const designation = concept.terms[0]?.designation;
-          if (designation) {
-            return `{{${opts.linkURNPrefix!}${parsedTag},${designation}}}`;
-          } else {
-            return `{{${opts.linkURNPrefix!}${parsedTag}}}`;
-          }
-        }
-        return;
-      }
-    : undefined;
-  const [newText, ] = extractHashtags(text, handleTag);
+function parseLinks(text, { forMatchingDesignation }) {
+  const [newText, ] =  extractHashtags(text, function handleTag(_, parsedTag) {
+    const _tag = parsedTag.toLowerCase();
+    return forMatchingDesignation(t => t.designation.replace(' ', '').toLowerCase() === _tag);
+  });
   return newText;
 }
 
@@ -107,10 +83,7 @@ async function * readConcepts(itemGenerator, opts) {
     }
     itemProgress(`Attributes ${JSON.stringify(item.designationProperties)}`);
     try {
-      yield [
-        item.id,
-        await parseLocalizedConcept(item, itemProgress),
-      ];
+      yield await parseLocalizedConcept(item, itemProgress);
     } catch (e) {
       itemProgress(`Error: ${(e as any)?.toString?.() ?? 'No error information available'}`);
     }
