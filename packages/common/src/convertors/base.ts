@@ -1,4 +1,5 @@
 import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
+import type { Designation } from '@riboseinc/paneron-extension-glossarist/models/concepts.js';
 
 
 /** Takes some sort of input data and provides localized concepts. */
@@ -31,26 +32,9 @@ export interface Convertor<
     input: () => AsyncGenerator<IntermediateItem, void, undefined>,
     opts?: CommonStreamProcessingOptions,
   ) =>
-    AsyncGenerator<LocalizedConceptWithID, void, undefined>;
+    AsyncGenerator<LocalizedConceptData, void, undefined>;
 
-  parseLinks?: (
-    text: string,
-    opts: {
-      /**
-       * Given a list of IDs, returns a list of concept data objects.
-       * If some ID does not have a concept associated, that item will be null.
-       */
-      getConcepts:
-        <T extends readonly string[]>
-        (ids: [...T]) => { [K in keyof T]: LocalizedConceptData | null },
-
-      /**
-       * If links are to be recognized, appropraite URN namespace is required.
-       * This option should contain the entire URN prefix with trailing colon.
-       */
-      linkURNPrefix?: string;
-    },
-  ) => string;
+  parseLinks?: LinkParser;
 
   // Can’t use TransformStream due to Node/web typing clash,
   // and we want to use convertors from CLI and Web,
@@ -60,7 +44,20 @@ export interface Convertor<
 }
 
 
-export type LocalizedConceptWithID = [string, LocalizedConceptData];
+export interface LinkParser {
+  (
+    text: string,
+    getLinkText: {
+      forMatchingDesignation: (predicate: (c: Designation) => boolean) =>
+        string | undefined,
+      forConceptID: (id: string) =>
+        string | undefined,
+    }
+  ): string;
+}
+
+
+//export type LocalizedConceptWithID = [string, LocalizedConceptData];
 
 
 /**
@@ -83,7 +80,7 @@ export interface FileConvertor<
 extends Convertor<File, Item> {}
 
 
-interface CommonStreamProcessingOptions {
+export interface CommonStreamProcessingOptions {
   onProgress?: ProgressHandler;
 }
 
