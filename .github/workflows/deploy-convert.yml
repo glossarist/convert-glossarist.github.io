@@ -23,6 +23,10 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@stable --activate
+      - name: Compile all packages
+        # TODO: get rid of
+        run: |
+          yarn compile-all
       - name: Build site
         run: |
           yarn workspace webgui build --debug
