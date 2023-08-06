@@ -27,6 +27,12 @@ jobs:
         run: |
           yarn workspace webgui build --debug
 
+      - name: Upload built site artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: webgui-dist
+          path: packages/webgui/dist
+
       - name: Deploy to AWS
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
