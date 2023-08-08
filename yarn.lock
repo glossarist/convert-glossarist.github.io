@@ -370,7 +370,6 @@ __metadata:
   resolution: "@riboseinc/glossarist-x3duom@workspace:packages/x3duom"
   dependencies:
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
-    "@riboseinc/paneron-registry-kit": ^2.1.1
     "@types/js-yaml": ~4.0
     common: "workspace:^"
     typescript: ~5.1
