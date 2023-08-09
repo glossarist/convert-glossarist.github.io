@@ -5,8 +5,7 @@
   "packageManager": "yarn@3.6.1",
   "dependencies": {
     "@riboseinc/glossarist-x3duom": "workspace:~",
-    "cmd-ts": "^0.12.1",
-    "common": "workspace:^"
+    "cmd-ts": "^0.12.1"
   },
   "scripts": {
     "glossarist-convert": "node compiled/index.js",
@@ -21,6 +20,7 @@
   "homepage": "https://github.com/glossarist/migration-adapters/tree/main/packages/cli",
   "devDependencies": {
     "@types/node": "^20.4.2",
+    "common": "workspace:^",
     "esbuild": "~0.18",
     "typescript": "~5.1"
   }
