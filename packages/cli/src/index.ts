@@ -8,7 +8,7 @@ import { fsPathToFiles } from './fs.js';
 // import x3duom from '@riboseinc/glossarist-x3duom';
 
 
-const convertors: Record<string, FileConvertor<any>> = {
+const convertors: Record<string, FileConvertor<any, any, any>> = {
   // x3duom: x3duom(),
 };
 
@@ -37,8 +37,8 @@ const app = command({
       return convertor!.parseInput(getFileStream);
     }
 
-    for await (const concept of convertor.readConcepts(getItemStream)) {
-      console.log("Got concept", JSON.stringify(concept));
+    for await (const item of convertor.generateItems(getItemStream)) {
+      console.log("Got item", JSON.stringify(item));
     }
   },
 });
