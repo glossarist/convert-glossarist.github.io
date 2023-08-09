@@ -14,7 +14,7 @@
   "scripts": {
     "new-version": "lerna version",
     "compile-all": "yarn workspaces foreach -ptvA run compile",
-    "clean-all": "yarn workspaces foreach -ptvA run clean",
+    "clean-all": "yarn workspaces foreach -pvA run clean",
     "new-publish": "lerna publish from-package",
     "preview:new-version": "lerna version --dry-run",
     "run-tests": "lerna run test"
