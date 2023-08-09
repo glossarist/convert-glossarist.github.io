@@ -54,7 +54,7 @@ docker container run --interactive --rm --network=none \
 
 ### Building Web GUI
 
-Host: `yarn compile-all`
+Host: `yarn workspace webgui build --debug`
 
 Docker:
 
