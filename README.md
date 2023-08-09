@@ -1,4 +1,8 @@
-# Migration adapters for Glossarist adopters
+# Converter collection
+
+NOTE: This started to aid in migration to Glossarist,
+but being expanded to cover other data models.
+The repository may soon be renamed and moved to a more appropriate place.
 
 Please file an issue if you are looking for help implementing
 a migration adapter for your pre-existing terminology data.

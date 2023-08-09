@@ -1,10 +1,12 @@
 // import type { FileConvertor } from '../../common/src/index.js';
 import x3duom, { type X3DUOMConvertor } from '@riboseinc/glossarist-x3duom';
+import grSheet, { type GRSheetConvertor } from '@riboseinc/gr-sheet';
 import { parseFilesFromUpload } from './uploads.js';
 
 
 export const convertors = {
   x3duom: x3duom() as X3DUOMConvertor,
+  'gr-sheet': grSheet() as GRSheetConvertor,
 } as const;
 
 
