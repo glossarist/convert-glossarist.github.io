@@ -54,6 +54,10 @@ docker container run --interactive --rm --network=none \
 
 ### Building Web GUI
 
+These examples supply `--debug` flag, but you can remove it
+to suppress unnecessary logging
+if build process is sufficiently stable.
+
 Host: `yarn workspace webgui build --debug`
 
 Docker:
