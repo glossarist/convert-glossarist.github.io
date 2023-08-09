@@ -74,6 +74,11 @@ docker container run --interactive --network=none \
 This will output Web GUI files, ready to serve,
 in `webgui-dist` directory under repository root.
 
+### Serving Web GUI locally
+
+Same as above, but add `--serve` flag in addition to `--debug`.
+It will be served at `localhost:8080`.
+
 ### Compiling all
 
 Host: to compile all packages, run `yarn compile-all`;
