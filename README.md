@@ -21,7 +21,8 @@ may only be deployed or distributed.
 ### Pre-requisites
 
 Below instructions will expect you to either use
-NodeJS 18 with Yarn 3+ on your host machine (“host”)
+NodeJS 18 with Yarn 3+ on your host machine
+(no-Docker approach is labeled “host” below)
 or to have Docker (e.g., as Docker Desktop).
 
 TODO: ways to invoke through Docker are a bit long,
@@ -40,6 +41,8 @@ docker build -f tsls.Dockerfile --build-arg "project_path=$(pwd)" -t "<your-imag
 ```
 
 ### Configuring LSP in your editor
+
+Host: hopefully your IDE will understand how it works?
 
 Docker: configure your editor to run the container.
 This will mount project root in read-only mode at the same path,
