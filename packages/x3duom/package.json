@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "@riboseinc/paneron-extension-glossarist": "^2.0.11",
-    "@types/js-yaml": "~4.0",
     "common": "workspace:^",
     "typescript": "~5.1"
   }
