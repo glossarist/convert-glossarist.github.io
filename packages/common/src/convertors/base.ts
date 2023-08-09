@@ -1,5 +1,4 @@
-import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
-import type { Designation } from '@riboseinc/paneron-extension-glossarist/models/concepts.js';
+import type { RegisterItem, RegisterConfiguration, ItemClassConfiguration } from '@riboseinc/paneron-registry-kit/types';
 
 
 /** Takes some sort of input data and provides localized concepts. */
@@ -9,6 +8,10 @@ export interface Convertor<
 
   // TODO: Find a better data structure / type to represent an object?
   IntermediateItem extends Record<string, any>,
+
+  OutputItem extends Record<string, any>,
+
+  RegisterConfig extends RegisterConfiguration | null,
 > {
   /** Very short descriptive designation for this convertor. */
   label: string;
@@ -16,7 +19,7 @@ export interface Convertor<
   /** User-friendly description of what to provide. */
   inputDescription: string;
 
-  /** Deserializes given files into suitable intermediate structures. */
+  /** Deserializes given input data into suitable intermediate structures. */
   parseInput: (
     input: () => AsyncGenerator<InputItem, void, undefined>,
     opts?: CommonStreamProcessingOptions,
@@ -24,17 +27,25 @@ export interface Convertor<
     AsyncGenerator<IntermediateItem, void, undefined>;
 
   /**
-   * Parses intermediate structures into pairs of [identifier, concept].
-   *
-   * The identifier may be used for internal links.
+   * Converts a stream of intermediate structures into a stream of output items.
    */
-  readConcepts: (
-    input: () => AsyncGenerator<IntermediateItem, void, undefined>,
-    opts?: CommonStreamProcessingOptions,
-  ) =>
-    AsyncGenerator<LocalizedConceptData, void, undefined>;
+  generateItems:
+    (
+      input: () => AsyncGenerator<IntermediateItem, void, undefined>,
+      opts?: CommonStreamProcessingOptions,
+    ) =>
+      AsyncGenerator<OutputItem, void, undefined>;
 
-  parseLinks?: LinkParser;
+  /**
+   * Converts a stream of output items into a stream of register items.
+   */
+  generateRegisterItems:
+    RegisterConfig extends RegisterConfiguration
+      ? (
+          items: AsyncGenerator<OutputItem, void, undefined>,
+          opts?: RegisterItemConversionOpts,
+        ) => AsyncGenerator<RegisterItemsByClassID<RegisterConfig>, void, undefined>
+      : never;
 
   // Can’t use TransformStream due to Node/web typing clash,
   // and we want to use convertors from CLI and Web,
@@ -44,16 +55,14 @@ export interface Convertor<
 }
 
 
-export interface LinkParser {
-  (
-    text: string,
-    getLinkText: {
-      forMatchingDesignation: (predicate: (c: Designation) => boolean) =>
-        string | undefined,
-      forConceptID: (id: string) =>
-        string | undefined,
-    }
-  ): string;
+type GetRegisterItemPayloadType<T> =
+  T extends ItemClassConfiguration<infer K> ? K : never;
+
+export type RegisterItemsByClassID<
+  P extends RegisterConfiguration,
+> = {
+  [K in keyof P["itemClassConfiguration"]]?:
+    RegisterItem<GetRegisterItemPayloadType<P["itemClassConfiguration"][K]>>
 }
 
 
@@ -75,13 +84,32 @@ export interface File {
  * either uploaded via a Web GUI or supplied via command-line.
  */
 export interface FileConvertor<
-  Item extends Record<string, any>,
->
-extends Convertor<File, Item> {}
+  IntermediateItem extends Record<string, any>,
+  OutputItem extends Record<string,any>,
+  RegisterConfig extends RegisterConfiguration | null>
+extends Convertor<
+  File,
+  IntermediateItem,
+  OutputItem,
+  RegisterConfig> {}
 
 
 export interface CommonStreamProcessingOptions {
   onProgress?: ProgressHandler;
+}
+
+
+export interface RegisterItemConversionOpts extends CommonStreamProcessingOptions {
+  /** URN namespace of the standard, may be required by some registers. */
+  urnNamespace?: string;
+
+  // /** Returns a human-readable `identifier` for universal concept data. */
+  // conceptIDMaker?: (
+  //   /** Zero-based index for current item in a stream. */
+  //   idx: number,
+  //   /** Concept entry. */
+  //   conceptData: LocalizedConceptData,
+  // ) => string,
 }
 
 

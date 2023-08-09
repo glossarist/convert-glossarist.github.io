@@ -1,37 +1,42 @@
-import type { FileConvertor } from '../../common/src/index.js';
-import x3duom from '@riboseinc/glossarist-x3duom';
+// import type { FileConvertor } from '../../common/src/index.js';
+import x3duom, { type X3DUOMConvertor } from '@riboseinc/glossarist-x3duom';
 import { parseFilesFromUpload } from './uploads.js';
 
 
-export const convertors: Record<string, FileConvertor<any>> = {
-  x3duom: x3duom(),
-};
+export const convertors = {
+  x3duom: x3duom() as X3DUOMConvertor,
+} as const;
+
+
+export function isConvertor(value: string): value is keyof typeof convertors {
+  return (convertors as any)[value] !== undefined;
+}
 
 
 export async function * parse(
   convertorName: string,
   input: (FileSystemFileEntry | FileSystemDirectoryEntry)[],
-  linkURNPrefix?: string,
   onProgress?: (msg: string) => void,
 ) {
-  const convertor = convertors[convertorName];
-  if (!convertor) {
-    throw new Error("No convertor with such name found");
-  }
+  if (isConvertor(convertorName)) {
+    const convertor = convertors[convertorName];
 
-  async function * getFileStream() {
-    for await (const entry of input) {
-      yield * parseFilesFromUpload(entry);
+    async function * getFileStream() {
+      for await (const entry of input) {
+        yield * parseFilesFromUpload(entry);
+      }
     }
-  }
 
-  function getItemStream() {
-    return convertor!.parseInput(getFileStream, { onProgress });
-  }
+    function getItemStream() {
+      return convertor!.parseInput(getFileStream, { onProgress });
+    }
 
-  const conceptStream = convertor.readConcepts(getItemStream, { onProgress });
+    const outputItemStream = convertor.generateItems(getItemStream, { onProgress });
 
-  for await (const conceptWithID of conceptStream) {
-    yield conceptWithID;
+    for await (const outputItem of outputItemStream) {
+      yield outputItem;
+    }
+  } else {
+    throw new Error("No matching convertor found");
   }
 }

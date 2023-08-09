@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { fileSave } from 'browser-fs-access';
 
 import styles from './app.module.css';
-import { convertors, parse } from './convertors.js';
-import { asProposal, processLinks, asRegisterItems } from '../../common/src/index.js';
+import { isConvertor, convertors, parse } from './convertors.js';
+import { asProposal } from '../../common/src/index.js';
 
 
 type Upload = (FileSystemFileEntry | FileSystemDirectoryEntry)[];
@@ -18,11 +18,11 @@ const DEFAULT_LINK_URN_PREFIX = 'urn:iso:std:iso:12345:';
 
 const App: React.FC<Record<never, never>> = function () {
   const [convertorName, setConvertorName] =
-    useState<keyof typeof convertors>(Object.keys(convertors)[0]!);
+    useState<keyof typeof convertors>('x3duom');
 
   const [emitFormat, setEmitFormat] = useState<'conceptList' | 'proposal'>('proposal');
 
-  const [linkPrefix, setLinkPrefix] = useState<string>(DEFAULT_LINK_URN_PREFIX);
+  const [urnNamespace, setURNNamespace] = useState<string>(DEFAULT_LINK_URN_PREFIX);
   const [gitUsername, setGitUsername] = useState<string>('');
   const [registerVersion, setRegisterVersion] = useState<string>('');
 
@@ -37,17 +37,13 @@ const App: React.FC<Record<never, never>> = function () {
       setLog([`Using convertor ${convertorName}`]);
       const results: Map<string, any> = new Map();
       let count: number = 0;
-      const conceptStream = parse(convertorName, upload, linkPrefix, log);
+      const itemStream = parse(convertorName, upload, log);
       try {
         if (emitFormat === 'proposal') {
-          const stream = canHandleLinks
-            ? processLinks(convertor.parseLinks!, asRegisterItems(conceptStream), {
-                linkURNPrefix: linkPrefix,
-                onProgress: function (msg) {
-                  log(`Parse links: ${msg}`);
-                },
-              })
-            : asRegisterItems(conceptStream);
+          const stream = convertor.generateRegisterItems(itemStream, {
+            urnNamespace,
+            onProgress: function (msg) { log(`Generate register items: ${msg}`); },
+          });
           const { proposalDraft, itemPayloads } = await asProposal(stream, {
             submittingStakeholderGitServerUsername: gitUsername,
             registerVersion,
@@ -58,8 +54,8 @@ const App: React.FC<Record<never, never>> = function () {
           results.set('itemPayloads', itemPayloads);
           count += 1;
         } else {
-          for await (const concept of conceptStream) {
-            results.set('concepts', [...(results.get('concepts') ?? []), concept]);
+          for await (const item of itemStream) {
+            results.set('items', [...(results.get('items') ?? []), item]);
             count += 1;
           }
         }
@@ -72,7 +68,7 @@ const App: React.FC<Record<never, never>> = function () {
             [encoder.encode(JSON.stringify(Object.fromEntries(results.entries())))],
             { type: 'application/json' },
           ), {
-            fileName: `glossarist-${convertorName}-conversion-result.json`,
+            fileName: `${convertorName}-conversion-result.json`,
           });
         } else {
           log("No results obtained.");
@@ -83,11 +79,13 @@ const App: React.FC<Record<never, never>> = function () {
 
   function handleConvertorSelect(evt: React.FormEvent<HTMLSelectElement>) {
     const convertorName = evt.currentTarget.value;
-    setConvertorName(convertorName);
+    if (isConvertor(convertorName)) {
+      setConvertorName(convertorName);
+    }
   }
 
   const convertor = convertors[convertorName];
-  const canHandleLinks = (convertor?.parseLinks && emitFormat === 'proposal');
+  const canHandleLinks = (emitFormat === 'proposal');
 
   return (
     <div className={styles.app}>
@@ -133,14 +131,14 @@ const App: React.FC<Record<never, never>> = function () {
         <ul className={emitFormat !== 'proposal' ? styles.hidden : undefined}>
           <li>
             &emsp;
-            <label htmlFor="linkURNPrefix">URN prefix for internal links:</label>
+            <label htmlFor="urnNamespace">Standard URN namespace (may be used by some convertors):</label>
             &ensp;
             <input
               disabled={!canHandleLinks}
               type="text"
-              id="linkURNPrefix"
-              value={canHandleLinks ? linkPrefix : "(unavailable)"}
-              onChange={evt => setLinkPrefix(evt.currentTarget.value)}
+              id="urnNamespace"
+              value={urnNamespace}
+              onChange={evt => setURNNamespace(evt.currentTarget.value)}
             />
           </li>
           <li>

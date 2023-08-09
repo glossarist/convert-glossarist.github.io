@@ -1,6 +1,13 @@
 import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
 import type { Designation, Expression } from '@riboseinc/paneron-extension-glossarist/models/concepts.js';
-import type { FileConvertor } from 'common';
+import type { FileConvertor } from '../../common/src/convertors/index.js';
+
+import {
+  type GlossaryRegisterConfig,
+  type LinkParser,
+  processLinks,
+  asRegisterItems,
+} from '../../common/src/glossary.js';
 
 
 /** Item obtained from processing an X3D UOM XML file. */
@@ -20,7 +27,11 @@ type DesignationStub =
   & Partial<Omit<Designation, 'designation'>>;
 
 
-interface X3DUOMConvertor extends FileConvertor<IntermediateItem> {}
+export interface X3DUOMConvertor
+extends FileConvertor<
+  IntermediateItem,
+  LocalizedConceptData,
+  GlossaryRegisterConfig> {}
 
 
 export default function getConvertor(): X3DUOMConvertor {
@@ -28,8 +39,8 @@ export default function getConvertor(): X3DUOMConvertor {
     label: "X3D UOM XML",
     inputDescription: "An XML file, or a directory with XML files, containing terms in X3D UOM format",
     parseInput,
-    readConcepts,
-    parseLinks,
+    generateItems,
+    generateRegisterItems,
   };
 }
 
@@ -62,7 +73,7 @@ async function * parseInput(fileGenerator, opts) {
 }
 
 
-const parseLinks: X3DUOMConvertor["parseLinks"] =
+const parseLinks: LinkParser =
 function parseLinks(text, { forMatchingDesignation }) {
   const [newText, ] =  extractHashtags(text, function handleTag(_, parsedTag) {
     const _tag = parsedTag.toLowerCase();
@@ -72,8 +83,8 @@ function parseLinks(text, { forMatchingDesignation }) {
 }
 
 
-const readConcepts: X3DUOMConvertor["readConcepts"] =
-async function * readConcepts(itemGenerator, opts) {
+const generateItems: X3DUOMConvertor["generateItems"] =
+async function * generateConcepts(itemGenerator, opts) {
   let idx = 1;
 
   for await (const item of itemGenerator()) {
@@ -91,7 +102,30 @@ async function * readConcepts(itemGenerator, opts) {
 }
 
 
-const convertX3D = async function* (
+const generateRegisterItems: X3DUOMConvertor["generateRegisterItems"] =
+async function * generateGlossaryRegisterItems(itemGenerator, opts) {
+  console.info("LINKS?", opts?.urnNamespace);
+  const stream = opts?.urnNamespace
+    ? processLinks(parseLinks, asRegisterItems(itemGenerator, opts), {
+        linkURNPrefix: opts.urnNamespace,
+        onProgress: opts.onProgress
+          ? function (msg) { opts!.onProgress!(`Process links: ${msg}`); }
+          : undefined,
+      })
+    : asRegisterItems(itemGenerator, opts);
+  yield * stream;
+
+  //if (opts?.urnNamespace) {
+  //  return processLinks(parseLinks, asRegisterItems(itemGenerator), {
+  //    linkURNPrefix: opts.urnNamespace,
+  //  });
+  //} else {
+  //  return asRegisterItems(itemGenerator);
+  //}
+}
+
+
+const convertX3D = async function * (
   xmlString: string,
   onProgress?: (msg: string) => void,
 ) {
