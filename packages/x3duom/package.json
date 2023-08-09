@@ -1,5 +1,6 @@
 {
   "name": "@riboseinc/glossarist-x3duom",
+  "description": "Converts X3D UOM XML to Glossarist format",
   "version": "0.0.1",
   "license": "MIT",
   "packageManager": "yarn@3.6.1",
