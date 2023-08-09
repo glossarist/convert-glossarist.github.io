@@ -23,12 +23,12 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@stable --activate
-      - name: Compile all packages
-        # TODO: Get rid of, the esbuild step should be sufficient.
-        # However, currently some packages rely on `compiled/` paths,
-        # which are created by running `compile` commands.
-        run: |
-          yarn compile-all
+      # - name: Compile all packages
+      #   # TODO: Get rid of, the esbuild step should be sufficient.
+      #   # However, currently some packages rely on `compiled/` paths,
+      #   # which are created by running `compile` commands.
+      #   run: |
+      #     yarn compile-all
       - name: Build site
         run: |
           yarn workspace webgui build --debug
