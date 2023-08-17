@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@riboseinc/paneron-extension-glossarist": "^2.0.11",
-    "@riboseinc/paneron-registry-kit": "^2.1.2",
+    "@riboseinc/paneron-registry-kit": "^2.1.5",
     "@types/node": "^18",
     "typescript": "~5.1"
   }

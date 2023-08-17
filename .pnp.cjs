@@ -497,7 +497,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@riboseinc/gr-sheet", "workspace:packages/gr-sheet"],\
             ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.8"],\
-            ["@riboseinc/paneron-registry-kit", "npm:2.1.3"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.1.5"],\
             ["common", "workspace:packages/common"],\
             ["read-excel-file", "npm:5.6.1"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
@@ -524,24 +524,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@riboseinc/paneron-registry-kit", [\
-        ["npm:2.1.1", {\
-          "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.1.1-b436a0fc44-b777749615.zip/node_modules/@riboseinc/paneron-registry-kit/",\
+        ["npm:2.1.5", {\
+          "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.1.5-de315ad789-4e3842d927.zip/node_modules/@riboseinc/paneron-registry-kit/",\
           "packageDependencies": [\
-            ["@riboseinc/paneron-registry-kit", "npm:2.1.1"]\
-          ],\
-          "linkType": "HARD"\
-        }],\
-        ["npm:2.1.2", {\
-          "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.1.2-efce0311db-aa2cf2c9f1.zip/node_modules/@riboseinc/paneron-registry-kit/",\
-          "packageDependencies": [\
-            ["@riboseinc/paneron-registry-kit", "npm:2.1.2"]\
-          ],\
-          "linkType": "HARD"\
-        }],\
-        ["npm:2.1.3", {\
-          "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.1.3-4f60c948e2-35303eee94.zip/node_modules/@riboseinc/paneron-registry-kit/",\
-          "packageDependencies": [\
-            ["@riboseinc/paneron-registry-kit", "npm:2.1.3"]\
+            ["@riboseinc/paneron-registry-kit", "npm:2.1.5"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -973,7 +959,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["common", "workspace:packages/common"],\
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
-            ["@riboseinc/paneron-registry-kit", "npm:2.1.2"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.1.5"],\
             ["@types/node", "npm:18.16.19"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
           ],\
@@ -2898,7 +2884,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@riboseinc/glossarist-x3duom", "workspace:packages/x3duom"],\
             ["@riboseinc/gr-sheet", "workspace:packages/gr-sheet"],\
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
-            ["@riboseinc/paneron-registry-kit", "npm:2.1.1"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.1.5"],\
             ["@types/node", "npm:18.16.19"],\
             ["@types/react", "npm:18.2.15"],\
             ["@types/react-dom", "npm:18.2.7"],\

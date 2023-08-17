@@ -380,7 +380,7 @@ __metadata:
   resolution: "@riboseinc/gr-sheet@workspace:packages/gr-sheet"
   dependencies:
     "@riboseinc/paneron-extension-geodetic-registry": ^1.0.8
-    "@riboseinc/paneron-registry-kit": ^2.1.3
+    "@riboseinc/paneron-registry-kit": ^2.1.5
     common: "workspace:^"
     read-excel-file: ^5.6.1
     typescript: ~5.1
@@ -401,24 +401,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@riboseinc/paneron-registry-kit@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "@riboseinc/paneron-registry-kit@npm:2.1.1"
-  checksum: b77774961549f3b9c902db1814803a9a809331d3a92f97845c566520b1f886a75a4e513bf3a3eec38635a7971325b6d1f697ab599f2857891c98f881bb967e7b
-  languageName: node
-  linkType: hard
-
-"@riboseinc/paneron-registry-kit@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "@riboseinc/paneron-registry-kit@npm:2.1.2"
-  checksum: aa2cf2c9f173dc12771c007b08e54dd129a39512a374e4ecc83f25f42231de6043d088c50d6eb3aacb9c81038e482c44adf504cfa02bc6ec7e525250f54641ab
-  languageName: node
-  linkType: hard
-
-"@riboseinc/paneron-registry-kit@npm:^2.1.3":
-  version: 2.1.3
-  resolution: "@riboseinc/paneron-registry-kit@npm:2.1.3"
-  checksum: 35303eee94684187ea4ce8c2d87e962284135924f6b3147be2f908abe62a7b3eb399debcd3607f744ee6d49f60cb06957eebd00e423a3cd0d77f184a0ec979b1
+"@riboseinc/paneron-registry-kit@npm:^2.1.5":
+  version: 2.1.5
+  resolution: "@riboseinc/paneron-registry-kit@npm:2.1.5"
+  checksum: 4e3842d927ff4031a62549fa9e674cb22c1f2ee1390b9290d8d14a4e1d798ab880c1805457b1c355662715c98561ad3d643b7ff20b2832701b756d34373c7414
   languageName: node
   linkType: hard
 
@@ -797,7 +783,7 @@ __metadata:
   resolution: "common@workspace:packages/common"
   dependencies:
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
-    "@riboseinc/paneron-registry-kit": ^2.1.2
+    "@riboseinc/paneron-registry-kit": ^2.1.5
     "@types/node": ^18
     typescript: ~5.1
   languageName: unknown
@@ -2585,7 +2571,7 @@ __metadata:
     "@riboseinc/glossarist-x3duom": "workspace:~"
     "@riboseinc/gr-sheet": "workspace:^"
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
-    "@riboseinc/paneron-registry-kit": ^2.1.1
+    "@riboseinc/paneron-registry-kit": ^2.1.5
     "@types/node": ^18
     "@types/react": ^18.2.15
     "@types/react-dom": ^18.2.7
