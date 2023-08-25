@@ -16,7 +16,7 @@ extends FileConvertor<
 
 
 // TODO: This should be possible to obtain using `typeof itemClassConfiguration`
-// with Glossarist extension’s itemClassConfiguration, but TS somehow loses
+// with GR extension’s itemClassConfiguration, but TS somehow loses
 // type information about register item payloads.
 export interface GRConfig extends RegisterConfiguration<{
   "coordinate-ops--conversion": ItemClassConfiguration<ConversionData>,
