@@ -29,7 +29,7 @@ const App: React.FC<Record<never, never>> = function () {
 
   const [_log, setLog] = useState<string[]>([]);
 
-  function log(msg: string) {
+  async function log(msg: string) {
     setLog(log => [ ...log, msg ]);
   }
 
