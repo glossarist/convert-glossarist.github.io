@@ -7,6 +7,11 @@ import { createServer } from 'node:http';
 import { build as esbuild, type LogLevel as ESBuildLogLevel } from 'esbuild';
 
 
+// NOTE: this assumes the script is called via `yarn workspace webgui build`,
+// so that `.` corresponds to webgui package root.
+const PACKAGE_ROOT = '.'
+
+
 type LogLevel = Extract<ESBuildLogLevel, 'debug' | 'info' | 'error' | 'silent'>;
 
 interface BuildOptions {
@@ -99,9 +104,9 @@ async function main() {
   });
 
   const buildOpts: BuildOptions = {
-    distdir: values.distdir ?? join('.', 'dist'),
-    srcdir: join('.', 'src'),
-    pubdir: join('.', 'public'),
+    distdir: values.distdir ?? join(PACKAGE_ROOT, 'dist'),
+    srcdir: join(PACKAGE_ROOT, 'src'),
+    pubdir: join(PACKAGE_ROOT, 'public'),
     logLevel:
       values.debug
         ? 'debug'
