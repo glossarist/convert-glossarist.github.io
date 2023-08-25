@@ -10,6 +10,7 @@ import { build as esbuild, type LogLevel as ESBuildLogLevel } from 'esbuild';
 // NOTE: this assumes the script is called via `yarn workspace webgui build`,
 // so that `.` corresponds to webgui package root.
 const PACKAGE_ROOT = '.'
+const REPO_ROOT = '../..';
 
 
 type LogLevel = Extract<ESBuildLogLevel, 'debug' | 'info' | 'error' | 'silent'>;
@@ -97,6 +98,8 @@ async function main() {
       // See serve() & watchAndCall()
       serve: { type: 'boolean' },
       port: { type: 'string' },
+      // Extra directories to watch, *relative to current package*
+      watch: { type: 'string', multiple: true },
 
       // See BuildOptions.distdir
       distdir: { type: 'string' },
@@ -148,7 +151,8 @@ async function main() {
         port,
         ac.signal);
       await watchAndCall(
-        [buildOpts.srcdir, buildOpts.pubdir],
+        [buildOpts.pubdir, buildOpts.srcdir, ...(values.watch ?? [])],
+        [],
         _build,
         ac.signal);
     } catch (e) {
@@ -217,6 +221,9 @@ async function watchAndCall(
   /** Subdirectories, relative to current path, to watch recursively. */
   subdirs: string[],
 
+  /** Subdirectories to ignore, relative to current path. */
+  ignoredirs: string[],
+
   /** Function to execute on changes. */
   cb: () => void,
 
@@ -233,17 +240,36 @@ async function watchAndCall(
 
   // Subdirectories to watch as fully-qualified paths
   const fqdirs = subdirs.map(d => resolve(d));
+  const fqignoredirs = ignoredirs.map(d => resolve(d));
 
-  const watcher = watch('.', { recursive: true, signal });
+  console.debug(
+    "Watching", resolve(REPO_ROOT),
+    "for changes in subdirectories", fqdirs.join(', '));
+  if (fqignoredirs) {
+    console.debug("ignoring", fqignoredirs.join(', '));
+  }
+
+  const watcher = watch(REPO_ROOT, { recursive: true, signal });
   try {
     for await (const evt of watcher) {
-      const fqfn = evt.filename ? resolve(evt.filename) : undefined;
-      if (fqfn && fqdirs.find(fqd => fqfn.startsWith(fqd))) {
-        console.log(`watch: file changed: ${evt.filename}`);
-        cancel();
-        debounceTimeout = setTimeout(cb, 1000);
-      } else if (evt.filename) {
-        console.debug(`watch: ignoring file change: ${evt.filename}`);
+      console.debug(`watch: event: ${evt.filename}`);
+
+      const fqfn = evt.filename ? resolve(REPO_ROOT, evt.filename) : undefined;
+
+      if (fqfn) {
+        const watched = fqdirs.find(fqd => fqfn.startsWith(fqd));
+        const ignored = fqignoredirs.find(fqd => fqfn.startsWith(fqd));
+        console.debug(`watch: ${fqfn} is ${!watched ? 'not ' : ''}watched by ${fqdirs.join(', ')}, ${!ignored ? 'not ' : ''}ignored`);
+        if (watched && !ignored) {
+          console.log(`watch: file changed: ${evt.filename}`);
+          cancel();
+          debounceTimeout = setTimeout(cb, 1000);
+        } else if (evt.filename) {
+          console.debug(`watch: ignoring file change: ${evt.filename}`);
+        }
+      } else {
+        console.debug(`watch: ignoring event (cannot resolve filename): ${evt.filename}`);
+        continue;
       }
     }
   } catch (e) {
