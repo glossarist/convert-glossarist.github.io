@@ -20,7 +20,7 @@ export async function * parse(
   convertorName: string,
   input: (FileSystemFileEntry | FileSystemDirectoryEntry)[],
   onProgress?: (msg: string) => void,
-) {
+): AsyncGenerator<unknown, void, undefined> {
   if (isConvertor(convertorName)) {
     const convertor: FileConvertor<any, any, any> = convertors[convertorName];
 
