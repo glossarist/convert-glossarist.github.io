@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { fileSave } from 'browser-fs-access';
 
 import styles from './app.module.css';
+import { type FileConvertor } from '../../common/src/convertors/index.js';
 import { isConvertor, convertors, parse } from './convertors.js';
 import { asProposal } from '../../common/src/index.js';
 
@@ -84,7 +85,7 @@ const App: React.FC<Record<never, never>> = function () {
     }
   }
 
-  const convertor = convertors[convertorName];
+  const convertor: FileConvertor<any, any, any> = convertors[convertorName];
   const canHandleLinks = (emitFormat === 'proposal');
 
   return (
