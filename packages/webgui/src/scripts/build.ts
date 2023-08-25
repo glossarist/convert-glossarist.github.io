@@ -89,7 +89,7 @@ async function main() {
       debug: { type: 'boolean' },
       verbose: { type: 'boolean' },
 
-      // See serve() & watchAndReload()
+      // See serve() & watchAndCall()
       serve: { type: 'boolean' },
       port: { type: 'string' },
 
