@@ -1611,7 +1611,7 @@ __metadata:
   dependencies:
     esbuild: ~0.18
     typescript: ~5.1
-    typescript-language-server: ^3.3.2
+    typescript-language-server: ~3.3.2
   dependenciesMeta:
     esbuild:
       built: true
@@ -2435,7 +2435,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-language-server@npm:^3.3.2":
+"typescript-language-server@npm:~3.3.2":
   version: 3.3.2
   resolution: "typescript-language-server@npm:3.3.2"
   bin:
