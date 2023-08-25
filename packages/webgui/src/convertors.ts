@@ -1,4 +1,5 @@
 // import type { FileConvertor } from '../../common/src/index.js';
+import { type FileConvertor } from 'common/src/convertors/index.js';
 import x3duom, { type X3DUOMConvertor } from '@riboseinc/glossarist-x3duom';
 import grSheet, { type GRSheetConvertor } from '@riboseinc/parse-gr-sheet';
 import { parseFilesFromUpload } from './uploads.js';
@@ -21,7 +22,7 @@ export async function * parse(
   onProgress?: (msg: string) => void,
 ) {
   if (isConvertor(convertorName)) {
-    const convertor = convertors[convertorName];
+    const convertor: FileConvertor<any, any, any> = convertors[convertorName];
 
     async function * getFileStream() {
       for await (const entry of input) {
