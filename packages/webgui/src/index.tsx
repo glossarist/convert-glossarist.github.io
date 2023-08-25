@@ -38,6 +38,7 @@ const App: React.FC<Record<never, never>> = function () {
       setLog([`Using convertor ${convertorName}`]);
       const results: Map<string, any> = new Map();
       let count: number = 0;
+      log("Reading uploaded data…");
       const itemStream = parse(convertorName, upload, log);
       try {
         if (emitFormat === 'proposal') {
