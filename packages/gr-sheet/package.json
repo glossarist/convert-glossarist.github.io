@@ -1,5 +1,5 @@
 {
-  "name": "@riboseinc/gr-sheet",
+  "name": "@riboseinc/parse-gr-sheet",
   "description": "Converts TC spreadsheet to ISO GR records",
   "version": "0.0.1",
   "license": "MIT",

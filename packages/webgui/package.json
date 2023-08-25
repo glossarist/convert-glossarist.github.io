@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@riboseinc/glossarist-x3duom": "workspace:~",
-    "@riboseinc/gr-sheet": "workspace:^",
+    "@riboseinc/parse-gr-sheet": "workspace:^",
     "browser-fs-access": "^0.34.1",
     "common": "workspace:^",
     "react": "^18.2.0",

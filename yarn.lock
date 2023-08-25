@@ -375,18 +375,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@riboseinc/gr-sheet@workspace:^, @riboseinc/gr-sheet@workspace:packages/gr-sheet":
-  version: 0.0.0-use.local
-  resolution: "@riboseinc/gr-sheet@workspace:packages/gr-sheet"
-  dependencies:
-    "@riboseinc/paneron-extension-geodetic-registry": ^1.0.8
-    "@riboseinc/paneron-registry-kit": ^2.1.5
-    common: "workspace:^"
-    read-excel-file: ^5.6.1
-    typescript: ~5.1
-  languageName: unknown
-  linkType: soft
-
 "@riboseinc/paneron-extension-geodetic-registry@npm:^1.0.8":
   version: 1.0.8
   resolution: "@riboseinc/paneron-extension-geodetic-registry@npm:1.0.8"
@@ -407,6 +395,18 @@ __metadata:
   checksum: 077cf296bd130baa452ae1164d9d59e300670cd48c7295fa547e2d7a9f6670528046aa0b3a1eeac17c3acdbfab3c59bbe11354ccbecea3467b5a9d9c88fbe501
   languageName: node
   linkType: hard
+
+"@riboseinc/parse-gr-sheet@workspace:^, @riboseinc/parse-gr-sheet@workspace:packages/gr-sheet":
+  version: 0.0.0-use.local
+  resolution: "@riboseinc/parse-gr-sheet@workspace:packages/gr-sheet"
+  dependencies:
+    "@riboseinc/paneron-extension-geodetic-registry": ^1.0.8
+    "@riboseinc/paneron-registry-kit": 2.2.2
+    common: "workspace:^"
+    read-excel-file: ^5.6.1
+    typescript: ~5.1
+  languageName: unknown
+  linkType: soft
 
 "@tootallnate/once@npm:2":
   version: 2.0.0
@@ -2569,9 +2569,9 @@ __metadata:
   resolution: "webgui@workspace:packages/webgui"
   dependencies:
     "@riboseinc/glossarist-x3duom": "workspace:~"
-    "@riboseinc/gr-sheet": "workspace:^"
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
     "@riboseinc/paneron-registry-kit": 2.2.2
+    "@riboseinc/parse-gr-sheet": "workspace:^"
     "@types/node": ^18
     "@types/react": ^18.2.15
     "@types/react-dom": ^18.2.7

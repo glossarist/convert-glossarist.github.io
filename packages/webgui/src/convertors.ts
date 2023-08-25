@@ -1,6 +1,6 @@
 // import type { FileConvertor } from '../../common/src/index.js';
 import x3duom, { type X3DUOMConvertor } from '@riboseinc/glossarist-x3duom';
-import grSheet, { type GRSheetConvertor } from '@riboseinc/gr-sheet';
+import grSheet, { type GRSheetConvertor } from '@riboseinc/parse-gr-sheet';
 import { parseFilesFromUpload } from './uploads.js';
 
 
