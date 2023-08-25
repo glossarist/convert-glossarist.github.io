@@ -401,10 +401,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@riboseinc/paneron-registry-kit@npm:^2.1.5":
-  version: 2.1.5
-  resolution: "@riboseinc/paneron-registry-kit@npm:2.1.5"
-  checksum: 4e3842d927ff4031a62549fa9e674cb22c1f2ee1390b9290d8d14a4e1d798ab880c1805457b1c355662715c98561ad3d643b7ff20b2832701b756d34373c7414
+"@riboseinc/paneron-registry-kit@npm:2.2.2":
+  version: 2.2.2
+  resolution: "@riboseinc/paneron-registry-kit@npm:2.2.2"
+  checksum: 077cf296bd130baa452ae1164d9d59e300670cd48c7295fa547e2d7a9f6670528046aa0b3a1eeac17c3acdbfab3c59bbe11354ccbecea3467b5a9d9c88fbe501
   languageName: node
   linkType: hard
 
@@ -783,7 +783,7 @@ __metadata:
   resolution: "common@workspace:packages/common"
   dependencies:
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
-    "@riboseinc/paneron-registry-kit": ^2.1.5
+    "@riboseinc/paneron-registry-kit": 2.2.2
     "@types/node": ^18
     typescript: ~5.1
   languageName: unknown
@@ -2571,7 +2571,7 @@ __metadata:
     "@riboseinc/glossarist-x3duom": "workspace:~"
     "@riboseinc/gr-sheet": "workspace:^"
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
-    "@riboseinc/paneron-registry-kit": ^2.1.5
+    "@riboseinc/paneron-registry-kit": 2.2.2
     "@types/node": ^18
     "@types/react": ^18.2.15
     "@types/react-dom": ^18.2.7

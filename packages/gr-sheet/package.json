@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@riboseinc/paneron-extension-geodetic-registry": "^1.0.8",
-    "@riboseinc/paneron-registry-kit": "^2.1.5",
+    "@riboseinc/paneron-registry-kit": "2.2.2",
     "common": "workspace:^",
     "typescript": "~5.1"
   }
