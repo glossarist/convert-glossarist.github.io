@@ -127,10 +127,6 @@ async function * parseSpreadsheetFiles(fileGenerator, opts) {
 
 const generateItems: GRSheetConvertor["generateItems"] =
 async function * generateGRItems(parsedSheetItems, opts) {
-  // TODO: cache ALL items, not just non-register items.
-  // Register items being added may reference other register items,
-  // not just non-items like extents/citations.
-  // TODO: Extents, citations will be their own items.
   const [stream1, stream2] = teeAsync(parsedSheetItems());
 
   const cache = await cacheItems(stream1);
@@ -303,6 +299,12 @@ function parseValueWithUoM(raw: string): { value: number, unitOfMeasurement: Pre
 type CachedItems = Record<NonItemSheetName, Record<string, Record<string, string>>>;
 
 const CACHE_SHEETS = [Sheets.CITATIONS, Sheets.EXTENTS, Sheets.TRANSFORMATION_PARAMS] as const;
+
+// TODO: cache ALL items, not just non-register items.
+// Register items being added may reference other register items,
+// not just non-items like extents/citations.
+// TODO: Extents, citations will be their own items.
+/** Sheets with items to be cached but not converted to register items. */
 type NonItemSheetName = typeof CACHE_SHEETS[number];
 function isCachedSheet(val: string): val is NonItemSheetName {
   return CACHE_SHEETS.indexOf(val as NonItemSheetName) >= 0;
