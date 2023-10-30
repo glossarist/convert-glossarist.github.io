@@ -212,7 +212,8 @@ interface BaseSheetItemProcessor<T> {
 /** Spec for a sheet to be processed into individual GR items. */
 interface RegisteredItemProcessor<T, I extends CommonGRItemData> extends BaseSheetItemProcessor<T> {
   toItem: (
-    item: T,
+    /** Row parsed into fields based on `fields` spec given. */
+    item: ReplaceKeys<T, keyof T, string>,
     /** For non-register items from other sheets, e.g. extents. */
     resolveRelatedFromSheet: (sheet: NonItemSheetName, id: string) => unknown,
     /** For related register items to be resolved at import time. */
