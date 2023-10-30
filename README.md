@@ -86,6 +86,14 @@ in `webgui-dist` directory under repository root.
 Same as above, but add `--serve` flag in addition to `--debug`.
 It will be served at `localhost:8080`.
 
+#### Watching while serving
+
+```
+yarn workspace webgui build --serve --watch $(pwd)/packages/gr-sheet/src
+```
+
+TODO: complete this section.
+
 ### Compiling all
 
 Host: to compile all packages, run `yarn compile-all`;
