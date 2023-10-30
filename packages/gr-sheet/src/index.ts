@@ -281,7 +281,7 @@ const SupportedSheets = {
   }),
   [Sheets.NON_COMPOUND_CRS]: makeItemProcessor({
     fields: ['sheetID', 'name', 'aliases', 'scope', 'remarks', 'type', 'datum', 'coordinateSystem', 'baseCRS', 'operation', 'extent', 'citation'],
-    toItem: function toCompoundCRS(item, resolveRelated, resolveReference, makeID) {
+    toItem: function toNonCompoundCRS(item, resolveRelated, resolveReference, makeID) {
       const [extentID] = extractItemID(item.extent);
       const extent = resolveRelated('Geo_Extent(GE#)', extentID) as Extent;
 
