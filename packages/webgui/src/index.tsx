@@ -67,7 +67,7 @@ const App: React.FC<Record<never, never>> = function () {
         if (count > 0) {
           log(`${count} items obtained; saving to JSON`);
           fileSave(new Blob(
-            [encoder.encode(JSON.stringify(Object.fromEntries(results.entries())))],
+            [encoder.encode(JSON.stringify(Object.fromEntries(results.entries()), undefined, 4))],
             { type: 'application/json' },
           ), {
             fileName: `${convertorName}-conversion-result.json`,
