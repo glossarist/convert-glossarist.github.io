@@ -8,6 +8,14 @@ import type { CommonGRItemData, Extent } from '@riboseinc/paneron-extension-geod
 import type { DatumData } from '@riboseinc/paneron-extension-geodetic-registry/classes/datum.js';
 import type { TransformationData } from '@riboseinc/paneron-extension-geodetic-registry/classes/transformation.js';
 import type { ConversionData } from '@riboseinc/paneron-extension-geodetic-registry/classes/conversion.js';
+import type {
+  CompoundCRSData,
+  NonCompoundCRSData,
+  VerticalCRSData,
+  GeodeticCRSData,
+  // ProjectedCRSData,
+  // EngineeringCRSData,
+} from '@riboseinc/paneron-extension-geodetic-registry/classes/crs.js';
 
 import xlsx, { readSheetNames, type Row } from 'read-excel-file';
 
@@ -40,6 +48,8 @@ export const Sheets = {
   TRANSFORMATION_PARAMS: 'ParamVal(PV#)',
 
   TRANSFORMATIONS: 'Coord_Trans(CT#)',
+  COMPOUND_CRS: 'CompCRS(CM#)',
+  NON_COMPOUND_CRS: 'CRS(CR#)',
 } as const;
 type SheetName = typeof Sheets[keyof typeof Sheets];
 function isSheetName(val: string): val is SheetName {
@@ -247,6 +257,71 @@ const SupportedSheets = {
         parameters: [],
       };
       return { itemType: 'coordinate-ops--transformation', itemData: c };
+    },
+  }),
+  [Sheets.COMPOUND_CRS]: makeItemProcessor({
+    fields: ['sheetID', 'name', 'aliases', 'scope', 'remarks', 'horizontalCRS', 'verticalCRS', 'extent', 'citation'],
+    toItem: function toCompoundCRS(item, resolveRelated, resolveReference, makeID) {
+      const [extentID] = extractItemID(item.extent);
+      const extent = resolveRelated('Geo_Extent(GE#)', extentID) as Extent;
+      const c: UsePredicates<CompoundCRSData, 'horizontalCRS' | 'verticalCRS'> = {
+        name: item.name,
+        identifier: makeID(item.sheetID),
+        remarks: item.remarks,
+        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+        horizontalCRS: resolveReference(item.horizontalCRS, 'generic'),
+        verticalCRS: resolveReference(item.verticalCRS, 'generic'),
+        extent,
+        informationSources: [],
+        scope: item.scope,
+      };
+      return { itemType: 'crs--compound', itemData: c };
+    },
+  }),
+  [Sheets.NON_COMPOUND_CRS]: makeItemProcessor({
+    fields: ['sheetID', 'name', 'aliases', 'scope', 'remarks', 'type', 'datum', 'coordinateSystem', 'baseCRS', 'operation', 'extent', 'citation'],
+    toItem: function toCompoundCRS(item, resolveRelated, resolveReference, makeID) {
+      const [extentID] = extractItemID(item.extent);
+      const extent = resolveRelated('Geo_Extent(GE#)', extentID) as Extent;
+
+      type NonCompoundCRSPredicateFieldNames = 'coordinateSystem' | 'baseCRS' | 'operation';
+      type SharedData = UsePredicates<NonCompoundCRSData, NonCompoundCRSPredicateFieldNames>
+      const shared: SharedData = {
+        name: item.name,
+        identifier: makeID(item.sheetID),
+        scope: item.scope,
+        remarks: item.remarks,
+        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+        coordinateSystem: resolveReference(item.coordinateSystem, 'generic'),
+        baseCRS: resolveReference(item.baseCRS, 'generic'),
+        operation: resolveReference(item.operation, 'generic'),
+        extent,
+        informationSources: [],
+      };
+
+      let itemType: string;
+      switch (item.type) {
+        case 'Vertical CRS':
+          itemType = 'crs--vertical';
+          const verticalCRS: UsePredicates<VerticalCRSData, 'datum' | NonCompoundCRSPredicateFieldNames> = {
+            ...shared,
+            datum: resolveReference(item.datum, 'id'),
+          };
+          return { itemType, itemData: verticalCRS };
+        case 'Geodetic CRS':
+          itemType = 'crs--geodetic';
+          const geodeticCRS: UsePredicates<GeodeticCRSData, 'datum' | NonCompoundCRSPredicateFieldNames> = {
+            ...shared,
+            datum: resolveReference(item.datum, 'id'),
+          };
+          return { itemType, itemData: geodeticCRS };
+        // case 'Engineering CRS':
+        //   itemType = 'crs--engineering';
+        // case 'Projected CRS':
+        //   itemType = 'crs--projected';
+        default:
+          throw new Error(`Unknown CRS type: ${item.type}`);
+      }
     },
   }),
   [Sheets.EXTENTS]: makeProcessor({
