@@ -131,13 +131,34 @@ async function * generateGRItems(parsedSheetItems, opts) {
 
   const cache = await cacheItems(stream1);
 
+  const idMap: TemporaryIDMap = {};
+  let availableID = -1;
+  function getTemporaryID(textID: string): number {
+    if (idMap[textID]) {
+      return idMap[textID]!;
+    } else {
+      const nextID = availableID;
+      idMap[textID] = nextID;
+      availableID = availableID - 1;
+      return nextID;
+    }
+  }
+
   for await (const sheetItem of stream2) {
     // Process actual items
     const processor = SupportedSheets[sheetItem.sheet];
     if (isItemProcessor(processor)) {
-      const item = processor.toItem(sheetItem.rowParsed, function resolveRelated(sheet, id) {
-        return cache[sheet][id];
-      });
+      const item = processor.toItem(
+        sheetItem.rowParsed,
+        function resolveRelated(sheet, id) {
+          return cache[sheet][id];
+        },
+        function _makePredicate(sheetID, mode) {
+          return makePredicate(sheetID, mode, idMap);
+        },
+        getTemporaryID,
+      );
+
       console.debug("Processed", sheetItem, "into", item);
       opts?.onProgress?.(`Creating GR item ${item.itemType}`);
       yield item;
@@ -180,7 +201,14 @@ interface BaseSheetItemProcessor<T> {
 }
 /** Spec for a sheet to be processed into individual GR items. */
 interface RegisteredItemProcessor<T, I extends CommonGRItemData> extends BaseSheetItemProcessor<T> {
-  toItem: (item: T, resolveRelatedFromSheet: (sheet: NonItemSheetName, id: string) => unknown) => GRItem<I>;
+  toItem: (
+    item: T,
+    /** For non-register items from other sheets, e.g. extents. */
+    resolveRelatedFromSheet: (sheet: NonItemSheetName, id: string) => unknown,
+    /** For related register items to be resolved at import time. */
+    resolveReference: (relatedItemSheetID: string, mode: Predicate["mode"]) => Predicate,
+    makeID: (currentItemSheetID: string) => number,
+  ) => GRItem<I>;
 }
 function isItemProcessor(val: BaseSheetItemProcessor<any>): val is RegisteredItemProcessor<any, any> {
   return val.hasOwnProperty('toItem');
@@ -197,7 +225,7 @@ function makeItemProcessor<T, I extends CommonGRItemData>(p: RegisteredItemProce
 const SupportedSheets = {
   [Sheets.TRANSFORMATIONS]: makeItemProcessor({
     fields: ['sheetID', 'name', 'aliases', 'sourceCRS', 'targetCRS', null, 'scope', 'remarks', 'method', 'extent', 'params', 'operationVersion', 'accuracy', 'citation', 'registerManagerNotes', 'controlBodyNotes', null, 'check'],
-    toItem: function toTransformation(item, resolveRelated) {
+    toItem: function toTransformation(item, resolveRelated, resolveReference, makeID) {
       const [extentID] = extractItemID(item.extent);
       const extent = resolveRelated('Geo_Extent(GE#)', extentID) as Extent;
       const c: ReplaceKeys<
@@ -206,14 +234,14 @@ const SupportedSheets = {
         UsePredicates<TransformationData["accuracy"], 'unitOfMeasurement'>
       > = {
         name: item.name,
-        identifier: 0,
+        identifier: makeID(item.sheetID),
         remarks: item.remarks,
         operationVersion: item.operationVersion,
         // TODO: Not required, UoM is always metre.
         accuracy: parseValueWithUoM(item.accuracy),
         aliases: item.aliases.split(';').map((a: string) => a.trim()),
-        sourceCRS: makePredicate(item.sourceCRS, 'generic'),
-        targetCRS: makePredicate(item.targetCRS, 'generic'),
+        sourceCRS: resolveReference(item.sourceCRS, 'generic'),
+        targetCRS: resolveReference(item.targetCRS, 'generic'),
         extent,
         informationSources: [],
         parameters: [],
@@ -253,20 +281,49 @@ function extractItemID(cellValue: string): [string, string] {
 }
 
 
+/** Maps sheet IDs, like CM1, to temporary identifiers (like -1). */
+type TemporaryIDMap = Record<string, number>;
+
 function makePredicate(
   cellWithReference: string,
   mode: Predicate["mode"],
+  idMap: TemporaryIDMap,
 ): Predicate {
   const [id] = extractItemID(cellWithReference);
 
   // Preexisting items must be referenced by numerical identifiers.
-  const idNum = parseInt(id, 10);
+  let idNum: number | undefined = undefined;
+  try {
+    idNum = parseInt(id, 10);
+  } catch (e) {
+    idNum = undefined;
+  }
 
-  return {
-    __isPredicate: true,
-    mode,
-    predicate: `data.identifier === ${idNum}`,
-  };
+  idNum = typeof idNum === 'number' && (idNum > 0 || idNum < 0)
+    ? idNum
+    : undefined;
+
+  if (idNum === undefined) {
+    if (idMap[id]) {
+      idNum = idMap[id];
+    } else {
+      // Fill in ID
+      idNum = Math.min(...Object.values(idMap)) - 1
+      idMap[id] = idNum;
+    }
+  }
+
+  // idNum can be a NaN. XD
+  if (idNum !== undefined) {
+    return {
+      __isPredicate: true,
+      mode,
+      predicate: `data.identifier === ${idNum}`,
+    };
+  } else {
+    console.warn(`Cannot resolve identifier ${id} even using idMap`, idMap);
+    throw new Error(`Identifier ${id} is unparseable or invalid`);
+  }
 }
 
 /**
