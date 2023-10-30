@@ -8,6 +8,8 @@ import type { CommonGRItemData, Extent } from '@riboseinc/paneron-extension-geod
 import type { DatumData } from '@riboseinc/paneron-extension-geodetic-registry/classes/datum.js';
 import type { TransformationData } from '@riboseinc/paneron-extension-geodetic-registry/classes/transformation.js';
 import type { ConversionData } from '@riboseinc/paneron-extension-geodetic-registry/classes/conversion.js';
+import type { CoordinateSystemData } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-systems.js';
+import type { CoordinateSystemAxisData } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-sys-axis.js';
 import type {
   CompoundCRSData,
   NonCompoundCRSData,
@@ -50,6 +52,9 @@ export const Sheets = {
   TRANSFORMATIONS: 'Coord_Trans(CT#)',
   COMPOUND_CRS: 'CompCRS(CM#)',
   NON_COMPOUND_CRS: 'CRS(CR#)',
+
+  COORDINATE_SYSTEMS: 'CoordSys(CS#)',
+  COORDINATE_SYSTEM_AXES: 'CSAxis(CA#)',
 } as const;
 type SheetName = typeof Sheets[keyof typeof Sheets];
 function isSheetName(val: string): val is SheetName {
@@ -322,6 +327,43 @@ const SupportedSheets = {
       }
     },
   }),
+  [Sheets.COORDINATE_SYSTEMS]: makeItemProcessor({
+    fields: ['sheetID', 'name', 'aliases', 'type', 'remarks', 'coordinateSystemAxes', 'citation'],
+    toItem: function toCoordinateSystem(item, _resolveRelated, resolveReference, makeID) {
+      const typeRaw = item.type.replace(" Coordinate System", '').trim().toLowerCase();
+      const itemType = `coordinate-sys--${typeRaw}`;
+
+      const axes = item.coordinateSystemAxes.split(';').
+        map(a => a.trim()).
+        map(axisID => resolveReference(axisID, 'id'));
+
+      const c: UsePredicateLists<CoordinateSystemData, 'coordinateSystemAxes'> = {
+        name: item.name,
+        identifier: makeID(item.sheetID),
+        remarks: item.remarks,
+        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+        coordinateSystemAxes: axes,
+        informationSources: [],
+      };
+      return { itemType, itemData: c };
+    },
+  }),
+  [Sheets.COORDINATE_SYSTEM_AXES]: makeItemProcessor({
+    fields: ['sheetID', 'name', 'aliases', 'remarks', 'abbreviation', 'orientation', 'unitOfMeasurement', 'minimumValue', 'maximumValue', 'rangeMeaning', 'citation'],
+    toItem: function toCoordinateSystemAxis(item, _resolveRelated, resolveReference, makeID) {
+      const c: UsePredicates<CoordinateSystemAxisData, 'unitOfMeasurement'> = {
+        name: item.name,
+        identifier: makeID(item.sheetID),
+        remarks: item.remarks,
+        orientation: item.orientation,
+        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+        abbreviation: item.abbreviation,
+        unitOfMeasurement: resolveReference(item.unitOfMeasurement, 'id'),
+        informationSources: [],
+      };
+      return { itemType: 'coordinate-sys-axis', itemData: c };
+    },
+  }),
   [Sheets.EXTENTS]: makeProcessor({
     fields: ['sheetID', 'description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate', null, 'check'],
   }),
@@ -334,6 +376,7 @@ function isSupportedSheetName(val: string): val is SupportedSheetName {
 
 type ReplaceKeys<T, Keys extends keyof T, WithType> = Omit<T, Keys> & { [key in Keys]: WithType };
 type UsePredicates<T, Keys extends keyof T> = ReplaceKeys<T, Keys, Predicate>;
+type UsePredicateLists<T, Keys extends keyof T> = ReplaceKeys<T, Keys, Predicate[]>;
 
 
 /**
