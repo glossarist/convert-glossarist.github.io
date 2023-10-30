@@ -300,22 +300,19 @@ const SupportedSheets = {
         informationSources: [],
       };
 
-      let itemType: string;
       switch (item.type) {
         case 'Vertical CRS':
-          itemType = 'crs--vertical';
           const verticalCRS: UsePredicates<VerticalCRSData, 'datum' | NonCompoundCRSPredicateFieldNames> = {
             ...shared,
             datum: resolveReference(item.datum, 'id'),
           };
-          return { itemType, itemData: verticalCRS };
+          return { itemType: 'crs--vertical', itemData: verticalCRS };
         case 'Geodetic CRS':
-          itemType = 'crs--geodetic';
           const geodeticCRS: UsePredicates<GeodeticCRSData, 'datum' | NonCompoundCRSPredicateFieldNames> = {
             ...shared,
             datum: resolveReference(item.datum, 'id'),
           };
-          return { itemType, itemData: geodeticCRS };
+          return { itemType: 'crs--geodetic', itemData: geodeticCRS };
         // case 'Engineering CRS':
         //   itemType = 'crs--engineering';
         // case 'Projected CRS':
