@@ -128,7 +128,13 @@ async function * parseSpreadsheetFiles(fileGenerator, opts) {
             rowRaw: row,
             rowParsed:
               processor.fields.
-                map((fname, idx) => ({ [fname as string]: `${row[idx]}` })).
+                map((fname, idx) => ({
+                  [fname as string]:
+                    // Avoid nulls
+                    row[idx]
+                      ? `${row[idx]}`
+                      : ''
+                })).
                 reduce((prev, curr) => ({ ...prev, ...curr })),
           };
         }
