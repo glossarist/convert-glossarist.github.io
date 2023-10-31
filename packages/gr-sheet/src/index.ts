@@ -396,7 +396,7 @@ const SupportedSheets = {
       if (item.baseUnit?.trim?.() != '') {
         c.baseUnit = resolveReference(item.baseUnit, 'id');
       }
-      return { itemType: 'coordinate-sys-axis', itemData: c };
+      return { itemType: 'unit-of-measurement', itemData: c };
     },
   }),
   [Sheets.EXTENTS]: makeProcessor({
