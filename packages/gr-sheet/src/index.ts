@@ -163,16 +163,22 @@ async function * generateGRItems(parsedSheetItems, opts) {
     // Process actual items
     const processor = SupportedSheets[sheetItem.sheet];
     if (isItemProcessor(processor)) {
-      const item = processor.toItem(
-        sheetItem.rowParsed,
-        function resolveRelated(sheet, id) {
-          return cache[sheet][id];
-        },
-        function _makePredicate(sheetID, mode) {
-          return makePredicate(sheetID, mode, idMap);
-        },
-        getTemporaryID,
-      );
+      let item: GRItem<any>
+      try {
+        item = processor.toItem(
+          sheetItem.rowParsed,
+          function resolveRelated(sheet, id) {
+            return cache[sheet][id];
+          },
+          function _makePredicate(sheetID, mode) {
+            return makePredicate(sheetID, mode, idMap);
+          },
+          getTemporaryID,
+        );
+      } catch (e) {
+        console.warn("Unable to transform sheet row to item", sheetItem.sheet, sheetItem.rowParsed, e);
+        throw e;
+      }
 
       console.debug("Processed", sheetItem, "into", item);
       opts?.onProgress?.(`Creating GR item ${item.itemType}`);
