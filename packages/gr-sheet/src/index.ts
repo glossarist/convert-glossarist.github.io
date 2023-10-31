@@ -10,6 +10,7 @@ import type { TransformationData } from '@riboseinc/paneron-extension-geodetic-r
 import type { ConversionData } from '@riboseinc/paneron-extension-geodetic-registry/classes/conversion.js';
 import type { CoordinateSystemData } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-systems.js';
 import type { CoordinateSystemAxisData } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-sys-axis.js';
+import type { UoMData } from '@riboseinc/paneron-extension-geodetic-registry/classes/unit-of-measurement.js';
 import type {
   CompoundCRSData,
   NonCompoundCRSData,
@@ -55,6 +56,7 @@ export const Sheets = {
 
   COORDINATE_SYSTEMS: 'CoordSys(CS#)',
   COORDINATE_SYSTEM_AXES: 'CSAxis(CA#)',
+  UOM: 'UoM(UM#)',
 } as const;
 type SheetName = typeof Sheets[keyof typeof Sheets];
 function isSheetName(val: string): val is SheetName {
@@ -373,6 +375,27 @@ const SupportedSheets = {
         unitOfMeasurement: resolveReference(item.unitOfMeasurement, 'id'),
         informationSources: [],
       };
+      return { itemType: 'coordinate-sys-axis', itemData: c };
+    },
+  }),
+  [Sheets.UOM]: makeItemProcessor({
+    fields: ['sheetID', 'name', 'aliases', 'remarks', 'baseUnit', 'numerator', 'denominator', 'measureType', 'maximumValue', 'symbol', 'citation'],
+    toItem: function toCoordinateSystemAxis(item, _resolveRelated, resolveReference, makeID) {
+      const c: Omit<UoMData, 'baseUnit'> & { baseUnit?: Predicate } = {
+        name: item.name,
+        identifier: makeID(item.sheetID),
+        remarks: item.remarks,
+        symbol: item.symbol,
+        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+        numerator: item.numerator.trim() !== '' ? parseInt(item.numerator, 10) : null,
+        denominator: item.denominator.trim() !== '' ? parseInt(item.denominator, 10) : null,
+        // XXX
+        measureType: item.measureType as any,
+        informationSources: [],
+      };
+      if (item.baseUnit?.trim?.() != '') {
+        c.baseUnit = resolveReference(item.baseUnit, 'id');
+      }
       return { itemType: 'coordinate-sys-axis', itemData: c };
     },
   }),
