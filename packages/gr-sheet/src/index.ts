@@ -400,7 +400,7 @@ const SupportedSheets = {
     },
   }),
   [Sheets.EXTENTS]: makeProcessor({
-    fields: ['sheetID', 'description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate', null, 'check'],
+    fields: ['description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate'],
   }),
 } as const;
 type SupportedSheetName = keyof typeof SupportedSheets;
