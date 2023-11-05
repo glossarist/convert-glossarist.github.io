@@ -6,7 +6,7 @@ import type {
 } from '@riboseinc/paneron-registry-kit/types';
 import type { Predicate } from '@riboseinc/paneron-registry-kit/views/change-request/objectChangeset.js';
 import type { CommonGRItemData, Extent } from '@riboseinc/paneron-extension-geodetic-registry/classes/common.js';
-import type { DatumData } from '@riboseinc/paneron-extension-geodetic-registry/classes/datum.js';
+import type { DatumData, GeodeticDatumData } from '@riboseinc/paneron-extension-geodetic-registry/classes/datum.js';
 import type { TransformationParameter, TransformationData } from '@riboseinc/paneron-extension-geodetic-registry/classes/transformation.js';
 import type { ConversionParameter, ConversionData } from '@riboseinc/paneron-extension-geodetic-registry/classes/conversion.js';
 import type { CoordinateSystemData } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-systems.js';
@@ -84,6 +84,8 @@ export const Sheets = {
   COORDINATE_SYSTEMS: 'CoordSys(CS#)',
   COORDINATE_SYSTEM_AXES: 'CSAxis(CA#)',
   UOM: 'UoM(UM#)',
+
+  DATUMS: 'Datum(CD#)',
 } as const;
 type SheetName = typeof Sheets[keyof typeof Sheets];
 function isSheetName(val: string): val is SheetName {
@@ -618,6 +620,40 @@ const SupportedSheets = {
         // formula,
       };
       return item;
+    },
+  }),
+  [Sheets.DATUMS]: makeItemProcessor({
+    fields: ['name', 'aliases', 'type', 'scope', 'remarks', 'originDescription', 'ellipsoid', 'primeMeridian', 'releaseDate', 'coordinateReferenceEpoch', 'extent', 'citation'],
+    getClassID: ({ type }) => (type === 'Vertical Datum' ? 'datums--vertical' : 'datums--geodetic'),
+    toRegisterItem: function parseDatum({ name, scope, remarks, originDescription, releaseDate, ...item }, resolveRelated, resolveReference) {
+      const extent = resolveRelated(extractItemID(item.extent)) as Extent | undefined;
+      if (!extent) {
+        throw new Error("No extent!");
+      }
+      const sharedData: Omit<DatumData, 'identifier'> = {
+        name,
+        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+        scope,
+        remarks,
+        originDescription,
+        releaseDate,
+        informationSources: [],
+        extent,
+        coordinateReferenceEpoch: item.coordinateReferenceEpoch.trim() || null,
+      } as const;
+      if (item.type === 'GeodeticDatum') {
+        const d: Omit<UsePredicates<GeodeticDatumData, 'ellipsoid' | 'primeMeridian'>, 'identifier'> = {
+          ...sharedData,
+          ellipsoid: resolveReference(item.ellipsoid, 'id'),
+          primeMeridian: resolveReference(item.primeMeridian, 'id'),
+        };
+        return d;
+      } else {
+        if (item.ellipsoid || item.primeMeridian) {
+          throw new Error("Ellipsoid and prime meridian are not recognized as properties of a Geodetic Datum");
+        }
+        return sharedData;
+      }
     },
   }),
   [Sheets.TRANSFORMATION_PARAMS]: makeProcessor({
