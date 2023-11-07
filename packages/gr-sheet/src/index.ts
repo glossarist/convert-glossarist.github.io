@@ -72,7 +72,7 @@ export interface GRConfig extends RegisterConfiguration<{
 export const Sheets = {
   EXTENTS: `Geo_Extent(GE#)`,
   CITATIONS: 'Source_Citation(CI#)',
-  TRANSFORMATION_PARAMS: 'ParamVal(PV#)',
+  OPERATION_PARAM_VALUES: 'ParamVal(PV#)',
   COORDINATE_OP_PARAMS: 'OpParam(OP#)',
   COORDINATE_OP_METHODS: 'OpMethod(OM#)',
 
@@ -656,7 +656,7 @@ const SupportedSheets = {
       }
     },
   }),
-  [Sheets.TRANSFORMATION_PARAMS]: makeProcessor({
+  [Sheets.OPERATION_PARAM_VALUES]: makeProcessor({
     fields: [
       'parameter',
       null, // <- Link to transformation -- useless? We link from transformation to here instead
