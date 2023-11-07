@@ -324,7 +324,7 @@ async function * generateGRItems(parsedSheetItems, opts) {
 
 
 const generateRegisterItems: GRSheetConvertor["generateRegisterItems"] =
-async function * generateGRItems(grItems, opts) {
+async function * generateRegisteredGRItems(grItems, opts) {
   // Current timestamp
   const dateAccepted = new Date();
   let idx = 0;
