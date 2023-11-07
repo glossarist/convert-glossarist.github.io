@@ -197,6 +197,8 @@ async function * generateGRItems(parsedSheetItems, opts) {
   let availableID = -1;
 
   const getOrCreateIdentifiers = function (rowParsed: Record<string, string>): { ref: InternalItemReference, identifier: number } {
+    console.debug("Generating item IDs", rowParsed.sheetID);
+
     if (!rowParsed.sheetID) {
       throw new Error("No sheetID in parsed row, cannot get or create identifiers");
     }
@@ -205,7 +207,9 @@ async function * generateGRItems(parsedSheetItems, opts) {
       const processor = SupportedSheets[sheetName];
 
       if (isRegisterItemProcessor(processor)) {
-        const classID = processor.getClassID(rowParsed);
+        const classID = processor.getClassID(
+          rowParsed as Record<Exclude<(typeof processor)["fields"][number], null>, string>
+        );
         const itemID = crypto.randomUUID();
         const itemRef = { classID, itemID };
         const identifier = availableID;
@@ -220,6 +224,8 @@ async function * generateGRItems(parsedSheetItems, opts) {
   }
 
   const resolveReference = function (cellContents: string, mode: Predicate["mode"]): Predicate | InternalItemReference | string {
+    console.debug("Resolving ref", cellContents);
+
     const itemID = extractItemID(cellContents);
     try {
       const item = resolveRelated(itemID);
@@ -241,6 +247,8 @@ async function * generateGRItems(parsedSheetItems, opts) {
   }
 
   const resolveRelated = function resolveRelated(sheetItemID: string) {
+    console.debug("Resolving item", sheetItemID);
+
     const sheetName = getSheetName(sheetItemID.slice(0, 2));
     if (cache[sheetName]) {
       const parsedRow = cache[sheetName]![sheetItemID];
@@ -257,18 +265,23 @@ async function * generateGRItems(parsedSheetItems, opts) {
   }
 
   const constructItem = function constructItem(parsedRow: Record<string, string>): unknown {
+    console.debug("Constructing item", parsedRow.sheetID);
+
     const sheetName = getSheetName(parsedRow.sheetID!.slice(0, 2));
     const processor = SupportedSheets[sheetName];
+    const pr = parsedRow as Record<Exclude<(typeof processor)["fields"][number], null>, string>
     if (isRegisterItemProcessor(processor)) {
-      return processor.toRegisterItem(parsedRow, resolveAndConstruct, resolveReference);
+      return processor.toRegisterItem(pr, resolveAndConstruct, resolveReference, opts);
     } else if (isBasicSheetItemProcessor(processor)) {
-      return processor.toItem(parsedRow, resolveAndConstruct, resolveReference);
+      return processor.toItem(pr, resolveAndConstruct, resolveReference, opts);
     } else {
       throw new Error("Unknown processor");
     }
   }
 
   const resolveAndConstruct = function resolveAndConstruct(sheetItemID: string): unknown {
+    console.debug("Resolving and constructing item", sheetItemID);
+
     return constructItem(resolveRelated(sheetItemID));
   }
 
@@ -284,11 +297,13 @@ async function * generateGRItems(parsedSheetItems, opts) {
 
       const { ref: itemRef, identifier } = getOrCreateIdentifiers(sheetItem.rowParsed);
 
+      const pr = sheetItem.rowParsed as Record<Exclude<(typeof processor)["fields"][number], null>, string>
+
       try {
         opts?.onProgress?.(`Handling GR item ${sheetItem.rowParsed.sheetID}`);
         parsedItem = processor.toRegisterItem(
-          sheetItem.rowParsed,
-          resolveRelated,
+          pr,
+          resolveAndConstruct,
           resolveReference,
         );
 
@@ -337,65 +352,102 @@ async function * generateRegisteredGRItems(grItems, opts) {
 
 
 /** Spec for a particular sheet to be processed. */
-interface BaseSheetItemProcessor<T, I> {
+interface BaseSheetItemProcessor<F extends string, I> {
   /**
    * Which column maps to which field in the object produced.
    * `null` means column data is ignored.
    */
-  fields: (((keyof T) & string) | null)[];
+  fields: (F | null)[];
   toItem: (
     /** Row parsed into fields based on `fields` spec given. */
-    item: ReplaceKeys<WithCommonFields<T>, keyof WithCommonFields<T>, string>,
+    item: Record<F, string>,
     /** Retrieve entire item data. For non-register items from other sheets, e.g. extents. */
     getSheetItem: (sheetItemID: string) => unknown | undefined,
     /**
      * Resolve link, either to predicate to resolve a preexisting register item at import time
      * or as `InternalItemReference` referencing item being added in the same proposal.
      */
-    resolveReference: (rawCellContents: string, mode: Predicate["mode"]) => Predicate | InternalItemReference | string,
+    resolveReference:
+      (rawCellContents: string, mode: Predicate["mode"]) =>
+        Predicate | InternalItemReference | string,
+    opts?: { onProgress?: (msg: string) => void },
   ) => I;
 }
 function isBasicSheetItemProcessor(val: unknown): val is BaseSheetItemProcessor<any, any> {
   return val && val.hasOwnProperty('toItem') ? true : false;
 }
+/** Fields common for all sheets. */
+type CommonColumns = 'sheetID'
+
+function makeProcessor<F extends string, I>
+(p: BaseSheetItemProcessor<Exclude<F, CommonColumns>, I>):
+BaseSheetItemProcessor<F, I> {
+  (p as BaseSheetItemProcessor<F | CommonColumns, I>).fields = [
+    'sheetID',
+    ...p.fields,
+  ];
+  return p;
+}
+
+
 /** Spec for a sheet to be processed into individual GR items. */
-interface RegisteredItemProcessor<T, I> extends Omit<BaseSheetItemProcessor<T, I>, 'toItem'> {
-  getClassID: (item: ReplaceKeys<T, keyof T, string>) => string;
+interface RegisteredItemProcessor<F extends string, RI>
+extends Omit<BaseSheetItemProcessor<F, RI>, 'toItem'> {
+  getClassID: (item: Record<F, string>) => string;
   toRegisterItem: (
     /** Row parsed into fields based on `fields` spec given. */
-    item: ReplaceKeys<WithCommonRegisterItemFields<T>, keyof WithCommonRegisterItemFields<T>, string>,
+    item: Record<F, string>,
     /** Retrieve entire item data. For non-register items from other sheets, e.g. extents. */
     getSheetItem: (sheetItemID: string) => unknown | undefined,
     /**
      * Resolve link, either to predicate to resolve a preexisting register item at import time
      * or as `InternalItemReference` referencing item being added in the same proposal.
      */
-    resolveReference: (rawCellContents: string, mode: Predicate["mode"]) => Predicate | InternalItemReference | string,
-  ) => Omit<I, 'identifier'>;
+    resolveReference:
+      (rawCellContents: string, mode: Predicate["mode"]) =>
+        Predicate | InternalItemReference | string,
+    opts?: { onProgress?: (msg: string) => void },
+  ) => RI;
 }
 function isRegisterItemProcessor(val: unknown): val is RegisteredItemProcessor<any, any> {
   return val && val.hasOwnProperty('getClassID') ? true : false;
 }
-/** Fields common for all item processors, including non-register-item. */
-type CommonFields = 'sheetID'
-type WithCommonFields<T> = T & { [K in CommonFields]: string }
-function makeProcessor<T extends WithCommonFields<any>, I>
-(p: BaseSheetItemProcessor<Omit<T, CommonFields>, I>):
-BaseSheetItemProcessor<T, I> {
-  (p as BaseSheetItemProcessor<WithCommonFields<T>, I>).fields = [
+
+type RequiredRegisterItemFields = keyof CommonGRItemData;
+
+type ProposalRelatedColumns =
+  'justification'
+| 'registerManagerNotes'
+| 'controlBodyNotes'
+| 'check';
+
+type GuaranteedRegisterItemSheetColumns =
+  CommonColumns
+| RequiredRegisterItemFields
+| ProposalRelatedColumns;
+
+/** Fields that change position from sheet to sheet. */
+type VariableRegisterItemFields =
+  'informationSources'
+| 'remarks';
+
+function makeItemProcessor<F extends string, RI>
+(p: RegisteredItemProcessor<
+  Exclude<F, 'citation' | 'citations' | 'informationSource' | Exclude<GuaranteedRegisterItemSheetColumns, VariableRegisterItemFields>>,
+  Omit<RI, keyof CommonGRItemData>,
+>): RegisteredItemProcessor<
+  F | GuaranteedRegisterItemSheetColumns,
+  RI & Omit<CommonGRItemData, 'identifier'>,
+> {
+  const pp = p as unknown as RegisteredItemProcessor<
+    F | GuaranteedRegisterItemSheetColumns,
+    RI & Omit<CommonGRItemData, 'identifier'>,
+  >;
+
+  pp.fields = [
     'sheetID',
-    ...p.fields,
-  ];
-  return p;
-}
-/** Fields common for register item processors. */
-type CommonRegisterItemFields = CommonFields | 'sheetID' | 'justification' | 'registerManagerNotes' | 'controlBodyNotes' | 'check'
-type WithCommonRegisterItemFields<T> = T & { [K in CommonRegisterItemFields]: string }
-function makeItemProcessor<T extends WithCommonRegisterItemFields<any>, I extends CommonGRItemData>
-(p: RegisteredItemProcessor<Omit<T, CommonRegisterItemFields>, I>):
-RegisteredItemProcessor<T, I> {
-  (p as RegisteredItemProcessor<WithCommonRegisterItemFields<T>, I>).fields = [
-    'sheetID',
+    'name',
+    'aliases',
     ...p.fields,
     'justification',
     'registerManagerNotes',
@@ -403,55 +455,98 @@ RegisteredItemProcessor<T, I> {
     null,
     'check',
   ];
-  return p;
+
+  const originalParser = p.toRegisterItem;
+
+  const parseRegisterItemWrapped: (typeof pp)["toRegisterItem"] =
+  function parseRegisterItemWrapped (parsedRow, resolveRelated, resolveReference) {
+    const commonData: Omit<CommonGRItemData, 'identifier'> = {
+      name: parsedRow.name.trim() || '',
+      aliases: parsedRow.aliases.trim() !== ''
+        ? parsedRow.aliases.split(';').map((a: string) => a.trim())
+        : [],
+      informationSources: parsedRow.informationSources.trim() !== ''
+        ? parsedRow.informationSources.split(';').
+            map((cid: string) => resolveRelated(extractItemID(cid)))
+        : [],
+      remarks: parsedRow.remarks.trim() || '',
+    }
+    const data = originalParser(parsedRow, resolveRelated, resolveReference);
+    const result = {
+      ...commonData,
+      ...data,
+    } as RI & Omit<CommonGRItemData, 'identifier'>;
+    return result;
+  }
+
+  // XXX don’t cast
+  pp.toRegisterItem = parseRegisterItemWrapped;
+
+  return pp;
 }
+
+/** Helper for typing return values of toRegisterItem */
+type Item<Payload, PredicateFields extends keyof Payload> = Omit<UsePredicates<Payload, PredicateFields>, keyof CommonGRItemData>
 
 const SupportedSheets = {
   [Sheets.TRANSFORMATIONS]: makeItemProcessor({
     fields: [
-      'name', 'aliases', 'sourceCRS', 'targetCRS',
+      'sourceCRS', 'targetCRS',
       null,  // <- Operation type (always “transformation”)
-      'scope', 'remarks', 'method', 'extent', 'params', 'operationVersion', 'accuracy', 'citation'],
+      'scope', 'remarks', 'method', 'extent', 'params', 'operationVersion', 'accuracy', 'informationSources'],
     getClassID: function () {
       return 'coordinate-ops--transformation';
     },
-    toRegisterItem: function toTransformation(item, resolveRelated, resolveReference) {
-      const extent = resolveRelated(extractItemID(item.extent));
+    toRegisterItem: function toTransformation(item, resolveRelated, resolveReference, opts) {
+      const extent = resolveRelated(extractItemID(item.extent)) as Extent;
       //const itemData: Omit<ReplaceKeys<
       //  UsePredicates<TransformationData, 'sourceCRS' | 'targetCRS'>,
       //  'accuracy',
       //  UsePredicates<TransformationData["accuracy"], 'unitOfMeasurement'>
       //>, 'identifier'> =
-      return {
-        name: item.name,
-        remarks: item.remarks,
+      const parameters = item.params.split(';').
+        map(p => p.trim()).
+        filter(p => p !== '').
+        map(paramSheetID => resolveRelated(extractItemID(paramSheetID)) as TransformationParameter).
+        map(({ type, name, value, unitOfMeasurement, parameter, fileCitation }) => {
+          const param: TransformationParameter = {
+            type,
+            fileCitation,
+            name,
+            value,
+            parameter,
+            unitOfMeasurement,
+          };
+          return param;
+        });
+      const data: Item<TransformationData, 'sourceCRS' | 'targetCRS'> = {
         operationVersion: item.operationVersion,
         // TODO: Not required, UoM is always metre.
-        accuracy: parseValueWithUoM(item.accuracy),
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+        accuracy: parseValueWithUoM(item.accuracy) as unknown as TransformationData["accuracy"],
         sourceCRS: resolveReference(item.sourceCRS, 'generic'),
         targetCRS: resolveReference(item.targetCRS, 'generic'),
         extent,
-        informationSources: [],
-        parameters: [],
+        parameters,
       };
-      // return itemData;
+      return data;
     },
   }),
   [Sheets.CONVERSIONS]: makeItemProcessor({
-    fields: ['name', 'aliases', null, 'scope', 'remarks', 'coordinateOperationMethod', 'extent', 'parameters', 'citation'],
+    fields: [null, 'scope', 'remarks', 'coordinateOperationMethod', 'extent', 'parameters', 'informationSources'],
     getClassID: () => 'coordinate-ops--conversion',
-    toRegisterItem: function toConversion(item, resolveRelated, resolveReference) {
-      const extent = resolveRelated(extractItemID(item.extent));
+    toRegisterItem: function toConversion(item, resolveRelated, resolveReference, opts) {
+      const extent = resolveRelated(extractItemID(item.extent)) as Extent;
       if (!extent) {
         throw new Error("No extent!");
       }
       const parameters = item.parameters.split(';').
         map(p => p.trim()).
-        map(paramSheetID => resolveRelated(paramSheetID) as TransformationParameter).
+        filter(p => p !== '').
+        map(paramSheetID => resolveRelated(extractItemID(paramSheetID)) as TransformationParameter).
         map(({ type, name, value, unitOfMeasurement, parameter }) => {
           if (type === ParameterType.FILE) {
-            throw new Error("“Reference File” parameters are not supported on Conversions");
+            opts?.onProgress?.("ERROR: “Reference File” parameters are not supported on Conversions");
+            //throw new Error("“Reference File” parameters are not supported on Conversions");
           }
           const param: ConversionParameter = {
             name,
@@ -461,19 +556,17 @@ const SupportedSheets = {
           };
           return param;
         });
-      return {
-        name: item.name,
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+      const result: Item<ConversionData, 'coordinateOperationMethod'> = {
         coordinateOperationMethod: resolveReference(item.coordinateOperationMethod, 'id'),
+        scope: item.scope,
         parameters,
         extent,
-        remarks: item.remarks,
-        informationSources: [],
-      }
+      };
+      return result;
     },
   }),
   [Sheets.COMPOUND_CRS]: makeItemProcessor({
-    fields: ['name', 'aliases', 'scope', 'remarks', 'horizontalCRS', 'verticalCRS', 'extent', 'citation'],
+    fields: ['scope', 'remarks', 'horizontalCRS', 'verticalCRS', 'extent', 'informationSources'],
     getClassID: () => 'crs--compound',
     toRegisterItem: function toCompoundCRS(item, resolveRelated, resolveReference) {
       const extent = resolveRelated(extractItemID(item.extent));
@@ -481,9 +574,7 @@ const SupportedSheets = {
         throw new Error("No extent!");
       }
       return {
-        name: item.name,
         remarks: item.remarks,
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
         horizontalCRS: resolveReference(item.horizontalCRS, 'generic'),
         verticalCRS: resolveReference(item.verticalCRS, 'generic'),
         extent,
@@ -493,23 +584,19 @@ const SupportedSheets = {
     },
   }),
   [Sheets.NON_COMPOUND_CRS]: makeItemProcessor({
-    fields: ['name', 'aliases', 'scope', 'remarks', 'type', 'datum', 'coordinateSystem', 'baseCRS', 'operation', 'extent', 'citation'],
+    fields: ['scope', 'remarks', 'type', 'datum', 'coordinateSystem', 'baseCRS', 'operation', 'extent', 'informationSources'],
     getClassID: (row) => `crs--${row.type.split(' ')[0]!.toLowerCase()}`,
     toRegisterItem: function toNonCompoundCRS(item, resolveRelated, resolveReference) {
       const extent = resolveRelated(extractItemID(item.extent)) as unknown as Extent;
 
       type NonCompoundCRSPredicateFieldNames = 'coordinateSystem' | 'baseCRS' | 'operation';
-      type SharedData = Omit<UsePredicates<NonCompoundCRSData, NonCompoundCRSPredicateFieldNames>, 'identifier'>;
+      type SharedData = Item<Omit<NonCompoundCRSData, 'datum'>, NonCompoundCRSPredicateFieldNames>;
       const shared: SharedData = {
-        name: item.name,
         scope: item.scope,
-        remarks: item.remarks,
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
         coordinateSystem: resolveReference(item.coordinateSystem, 'generic'),
         baseCRS: resolveReference(item.baseCRS, 'generic'),
         operation: resolveReference(item.operation, 'generic'),
         extent,
-        informationSources: [],
       };
 
       switch (item.type) {
@@ -523,6 +610,7 @@ const SupportedSheets = {
             ...shared,
             datum: resolveReference(item.datum, 'id'),
           };
+        // XXX
         // case 'Engineering CRS':
         //   itemType = 'crs--engineering';
         // case 'Projected CRS':
@@ -533,85 +621,68 @@ const SupportedSheets = {
     },
   }),
   [Sheets.COORDINATE_SYSTEMS]: makeItemProcessor({
-    fields: ['name', 'aliases', 'type', 'remarks', 'coordinateSystemAxes', 'citation'],
-    getClassID: (row) => `crs--${row.type.replace(" Coordinate System", '').trim().toLowerCase()}`,
+    fields: ['type', 'remarks', 'coordinateSystemAxes', 'informationSources'],
+    getClassID: (row) => `coordinate-sys--${row.type.replace(" Coordinate System", '').trim().toLowerCase()}`,
     toRegisterItem: function toCoordinateSystem(item, _resolveRelated, resolveReference) {
       const axes = item.coordinateSystemAxes.split(';').
         map(a => a.trim()).
         map(axisID => resolveReference(axisID, 'id'));
 
       return {
-        name: item.name,
-        remarks: item.remarks,
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
         coordinateSystemAxes: axes,
-        informationSources: [],
       };
     },
   }),
   [Sheets.COORDINATE_SYSTEM_AXES]: makeItemProcessor({
-    fields: ['name', 'aliases', 'remarks', 'abbreviation', 'orientation', 'unitOfMeasurement', 'minimumValue', 'maximumValue', 'rangeMeaning', 'citation'],
+    fields: ['remarks', 'abbreviation', 'orientation', 'unitOfMeasurement', 'minimumValue', 'maximumValue', 'rangeMeaning', 'informationSources'],
     getClassID: () => 'coordinate-sys-axis',
     toRegisterItem: function toCoordinateSystemAxis(item, _resolveRelated, resolveReference) {
       return {
-        name: item.name,
         remarks: item.remarks,
         orientation: item.orientation,
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
         abbreviation: item.abbreviation,
         unitOfMeasurement: resolveReference(item.unitOfMeasurement, 'id'),
-        informationSources: [],
       };
     },
   }),
   [Sheets.UOM]: makeItemProcessor({
-    fields: ['name', 'aliases', 'remarks', 'baseUnit', 'numerator', 'denominator', 'measureType', 'maximumValue', 'symbol', 'citation'],
+    fields: ['remarks', 'baseUnit', 'numerator', 'denominator', 'measureType', 'symbol', 'informationSources'],
     getClassID: () => 'unit-of-measurement',
     toRegisterItem: function toUoM(item, _resolveRelated, resolveReference) {
-      const c: Omit<UoMData, 'baseUnit' | 'identifier'> & { baseUnit?: Predicate | string } = {
-        name: item.name,
-        remarks: item.remarks,
+      const c: Omit<UoMData, 'baseUnit' | 'identifier' | keyof CommonGRItemData> & { baseUnit?: Predicate | string } = {
         symbol: item.symbol,
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
         numerator: item.numerator.trim() !== '' ? parseInt(item.numerator, 10) : null,
         denominator: item.denominator.trim() !== '' ? parseInt(item.denominator, 10) : null,
         // XXX
         measureType: item.measureType as any,
-        informationSources: [],
       };
       if (item.baseUnit?.trim?.() != '') {
+        console.debug("handling baseUnit");
         c.baseUnit = resolveReference(item.baseUnit, 'id') as string | Predicate;
       }
       return c;
     },
   }),
   [Sheets.COORDINATE_OP_PARAMS]: makeItemProcessor({
-    fields: ['name', 'alias', 'remarks', 'minimumOccurs', 'citation'],
+    fields: ['remarks', 'minimumOccurs', 'informationSources'],
     getClassID: () => 'coordinate-op-parameter',
-    toRegisterItem: function parseCoordinateOpParam({ name, alias, remarks, minimumOccurs, citation }) {
+    toRegisterItem: function parseCoordinateOpParam({ minimumOccurs }) {
       return {
-        name,
-        aliases: alias.split(';').map((a: string) => a.trim()),
-        remarks,
         minimumOccurs: parseInt(minimumOccurs.trim(), 10),
-        informationSources: [],
       };
     },
   }),
   [Sheets.COORDINATE_OP_METHODS]: makeItemProcessor({
-    fields: ['name', 'aliases', 'remarks', 'parameters', 'formula', 'citation', 'sourceCRSDimensionCount', 'targetCRSDimensionCount'],
+    fields: ['remarks', 'parameters', 'formula', 'informationSources', 'sourceCRSDimensionCount', 'targetCRSDimensionCount'],
     getClassID: () => 'coordinate-op-method',
-    toRegisterItem: function parseCoordinateOpMethod({ name, aliases, remarks, parameters, formula, citation, sourceCRSDimensionCount, targetCRSDimensionCount }, resolveRelated, resolveReference) {
-      const item: Omit<UsePredicateLists<CoordinateOpMethod, 'parameters'>, 'identifier'> = {
-        name,
-        remarks,
-        aliases: aliases.split(';').map((a: string) => a.trim()),
+    toRegisterItem: function parseCoordinateOpMethod({ parameters, formula, informationSources, sourceCRSDimensionCount, targetCRSDimensionCount }, resolveRelated, resolveReference) {
+      const item: Omit<UsePredicateLists<CoordinateOpMethod, 'parameters'>, 'identifier' | keyof CommonGRItemData> = {
+        // XXX
         // sourceCRSDimensionCount: sourceCRSDimensionCount.trim() !== '' ? parseInt(sourceCRSDimensionCount, 10) : null,
         // targetCRSDimensionCount: targetCRSDimensionCount.trim() !== '' ? parseInt(targetCRSDimensionCount, 10) : null,
         parameters: parameters.trim() !== ''
           ? parameters.split(';').map(paramUUID => resolveReference(paramUUID, 'id'))
           : [],
-        informationSources: [],
         // citation: resolveRelated(citation),
         // formula,
       };
@@ -619,26 +690,22 @@ const SupportedSheets = {
     },
   }),
   [Sheets.DATUMS]: makeItemProcessor({
-    fields: ['name', 'aliases', 'type', 'scope', 'remarks', 'originDescription', 'ellipsoid', 'primeMeridian', 'releaseDate', 'coordinateReferenceEpoch', 'extent', 'citation'],
+    fields: ['type', 'scope', 'remarks', 'originDescription', 'ellipsoid', 'primeMeridian', 'releaseDate', 'coordinateReferenceEpoch', 'extent', 'informationSources'],
     getClassID: ({ type }) => (type === 'Vertical Datum' ? 'datums--vertical' : 'datums--geodetic'),
-    toRegisterItem: function parseDatum({ name, scope, remarks, originDescription, releaseDate, ...item }, resolveRelated, resolveReference) {
+    toRegisterItem: function parseDatum({ scope, originDescription, releaseDate, ...item }, resolveRelated, resolveReference) {
       const extent = resolveRelated(extractItemID(item.extent)) as Extent | undefined;
       if (!extent) {
         throw new Error("No extent!");
       }
-      const sharedData: Omit<DatumData, 'identifier'> = {
-        name,
-        aliases: item.aliases.split(';').map((a: string) => a.trim()),
+      const sharedData: Item<DatumData, never> = {
         scope,
-        remarks,
         originDescription,
         releaseDate,
-        informationSources: [],
         extent,
         coordinateReferenceEpoch: item.coordinateReferenceEpoch.trim() || null,
       } as const;
       if (item.type === 'GeodeticDatum') {
-        const d: Omit<UsePredicates<GeodeticDatumData, 'ellipsoid' | 'primeMeridian'>, 'identifier'> = {
+        const d: Omit<UsePredicates<GeodeticDatumData, 'ellipsoid' | 'primeMeridian'>, keyof CommonGRItemData> = {
           ...sharedData,
           ellipsoid: resolveReference(item.ellipsoid, 'id'),
           primeMeridian: resolveReference(item.primeMeridian, 'id'),
@@ -660,7 +727,7 @@ const SupportedSheets = {
       null, // <- UoM name -- redundant?
       'fileRef', 'citation',
     ],
-    toItem: function parseTransformationParam({ parameter, type, value, unitOfMeasurement, fileRef, citation }, _resolveRelated, resolveReference) {
+    toItem: function parseTransformationParam({ parameter, type, value, unitOfMeasurement, fileRef, citation }, resolveRelated, resolveReference, opts) {
       const c: ReplaceKeys<UsePredicates<TransformationParameter, 'parameter'>, 'unitOfMeasurement', string | Predicate | null> = {
         parameter: resolveReference(parameter, 'id') as string | Predicate,
         type: type === "Reference File"
@@ -673,8 +740,16 @@ const SupportedSheets = {
           ? fileRef
           : value,
         name: '', // XXX: name seems unused
-        fileCitation: citation || null,
+        fileCitation: null,
       };
+      if (citation.trim() !== '') {
+        try {
+          c.fileCitation = resolveRelated(citation);
+        } catch (e) {
+          opts?.onProgress?.(`ERROR: Failed to resolve related citation based on “${citation}”`);
+          c.fileCitation = citation;
+        }
+      }
       return c;
     },
   }),
@@ -686,6 +761,7 @@ const SupportedSheets = {
     fields: ['title', 'alternateTitles', 'author', 'publisher', 'publicationDate', 'revisionDate', 'edition', 'editionDate', 'seriesName', 'issue', 'page', 'otherDetails', 'uri'],
     toItem: function parseCitation ({ title, publisher }) {
       return {
+        // XXX
         title,
         //alternateTitles: item.alternateTitles.split(';').map(t => t.trim()),
         publisher,
@@ -720,6 +796,12 @@ function extractItemID(cellValue: string): string {
   } else {
     id = cellValue.trim();
   }
+
+  // Validate?
+  // try {
+  //   getSheetName(id.slice(0, 2))
+  // }
+
   return id;
 }
 
