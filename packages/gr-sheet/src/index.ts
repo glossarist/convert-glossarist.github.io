@@ -13,9 +13,7 @@ import type { CoordinateSystemData } from '@riboseinc/paneron-extension-geodetic
 import type { CoordinateSystemAxisData } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-sys-axis.js';
 import type { CoordinateOpMethod } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-op-method.js';
 import type { UoMData } from '@riboseinc/paneron-extension-geodetic-registry/classes/unit-of-measurement.js';
-import type {
-  NonCompoundCRSData,
-} from '@riboseinc/paneron-extension-geodetic-registry/classes/crs.js';
+import type { NonCompoundCRSData } from '@riboseinc/paneron-extension-geodetic-registry/classes/crs.js';
 
 import xlsx, { readSheetNames, type Row } from 'read-excel-file';
 
