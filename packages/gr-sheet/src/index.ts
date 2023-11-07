@@ -14,12 +14,7 @@ import type { CoordinateSystemAxisData } from '@riboseinc/paneron-extension-geod
 import type { CoordinateOpMethod } from '@riboseinc/paneron-extension-geodetic-registry/classes/coordinate-op-method.js';
 import type { UoMData } from '@riboseinc/paneron-extension-geodetic-registry/classes/unit-of-measurement.js';
 import type {
-  //CompoundCRSData,
   NonCompoundCRSData,
-  //VerticalCRSData,
-  //GeodeticCRSData,
-  // ProjectedCRSData,
-  // EngineeringCRSData,
 } from '@riboseinc/paneron-extension-geodetic-registry/classes/crs.js';
 
 import xlsx, { readSheetNames, type Row } from 'read-excel-file';
@@ -728,10 +723,6 @@ function extractItemID(cellValue: string): string {
     id = cellValue.trim();
   }
   return id;
-  //const [id, ] = parts as [string, string[]];
-  // ^ Cast because we’re sure there’re enough parts
-  //return id
-  //return [id, remainingParts.join(REFERENCE_SEPARATOR)];
 }
 
 
@@ -803,17 +794,6 @@ function parseValueWithUoM(raw: string): { value: number, unitOfMeasurement: Pre
 
 /** Indexes row data by first column (ID), groups by sheet. */
 type CachedItems = Record<SheetName, Record<string, Record<string, string>>>;
-
-// const CACHE_SHEETS = [Sheets.CITATIONS, Sheets.EXTENTS, Sheets.TRANSFORMATION_PARAMS] as const;
-// TODO: cache ALL items, not just non-register items.
-// Register items being added may reference other register items,
-// not just non-items like extents/citations.
-// TODO: Extents, citations will be their own items.
-// /** Sheets with items to be cached but not converted to register items. */
-// type NonItemSheetName = typeof CACHE_SHEETS[number];
-// function isCachedSheet(val: string): val is NonItemSheetName {
-//   return CACHE_SHEETS.indexOf(val as NonItemSheetName) >= 0;
-// }
 
 async function cacheItems(
   items: AsyncGenerator<ParsedSheetItem, void, undefined>,
