@@ -197,6 +197,7 @@ const generateItems: GRSheetConvertor["generateItems"] =
 async function * generateGRItems(parsedSheetItems, opts) {
   const [stream1, stream2] = teeAsync(parsedSheetItems());
 
+  opts?.onProgress?.("Caching items");
   const cache = await cacheItems(stream1);
 
   const idMap: TemporaryIDMap = {};
@@ -242,6 +243,7 @@ async function * generateGRItems(parsedSheetItems, opts) {
         mode,
       );
     }
+    opts?.onProgress?.(`Referenced item ${itemID} cannot be found in this proposal`);
     throw new Error(`Unable to resolve reference, ${itemID}`);
   }
 
@@ -290,6 +292,7 @@ async function * generateGRItems(parsedSheetItems, opts) {
       const { ref: itemRef, identifier } = getOrCreateIdentifiers(sheetItem.rowParsed);
 
       try {
+        opts?.onProgress?.(`Handling GR item ${sheetItem.rowParsed.sheetID}`);
         parsedItem = processor.toRegisterItem(
           sheetItem.rowParsed,
           resolveRelated,
