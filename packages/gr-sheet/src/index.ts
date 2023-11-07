@@ -716,12 +716,18 @@ type UsePredicateLists<T, Keys extends keyof T> = ReplaceKeys<T, Keys, (Predicat
  */
 const REFERENCE_SEPARATOR = ' - ';
 function extractItemID(cellValue: string): string {
-  const parts: string[] = cellValue.split(REFERENCE_SEPARATOR);
-  if (parts.length < 2) {
-    throw new Error(`Unable to extract a reference from ${cellValue}`);
-  }
+  let id: string;
+  if (cellValue.indexOf(REFERENCE_SEPARATOR) > 1) {
+    const parts: string[] = cellValue.split(REFERENCE_SEPARATOR);
+    if (parts.length < 2) {
+      throw new Error(`Unable to extract a reference from ${cellValue}`);
+    }
 
-  return parts[0]!;
+    id = parts[0]!;
+  } else {
+    id = cellValue.trim();
+  }
+  return id;
   //const [id, ] = parts as [string, string[]];
   // ^ Cast because we’re sure there’re enough parts
   //return id
