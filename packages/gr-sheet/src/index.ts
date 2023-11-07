@@ -796,7 +796,7 @@ function parseValueWithUoM(raw: string): { value: number, unitOfMeasurement: Pre
       __isPredicate: true,
       mode: 'id',
       predicate: `data.aliases?.indexOf("${uomAlias}") >= 0`,
-    }
+    },
   };
 }
 
