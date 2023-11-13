@@ -434,14 +434,14 @@ type VariableRegisterItemFields =
 function makeItemProcessor<F extends string, RI>
 (p: RegisteredItemProcessor<
   Exclude<F, 'citation' | 'citations' | 'informationSource' | Exclude<GuaranteedRegisterItemSheetColumns, VariableRegisterItemFields>>,
-  Omit<RI, keyof CommonGRItemData>,
+  Omit<RI, keyof CommonGRItemData>
 >): RegisteredItemProcessor<
   F | GuaranteedRegisterItemSheetColumns,
-  RI & Omit<CommonGRItemData, 'identifier'>,
+  RI & Omit<CommonGRItemData, 'identifier'>
 > {
   const pp = p as unknown as RegisteredItemProcessor<
     F | GuaranteedRegisterItemSheetColumns,
-    RI & Omit<CommonGRItemData, 'identifier'>,
+    RI & Omit<CommonGRItemData, 'identifier'>
   >;
 
   pp.fields = [
