@@ -610,11 +610,11 @@ const SupportedSheets = {
             ...shared,
             datum: resolveReference(item.datum, 'id'),
           };
-        // XXX
+        case 'Projected CRS':
+          return shared;
+        // Doesn’t seem allowed by the spreadsheet
         // case 'Engineering CRS':
         //   itemType = 'crs--engineering';
-        // case 'Projected CRS':
-        //   itemType = 'crs--projected';
         default:
           throw new Error(`Unknown CRS type: ${item.type}`);
       }
