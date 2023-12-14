@@ -20,6 +20,7 @@ export async function * parse(
   convertorName: string,
   input: (FileSystemFileEntry | FileSystemDirectoryEntry)[],
   onProgress?: (msg: string) => void,
+  isAborted?: () => boolean,
 ): AsyncGenerator<unknown, void, undefined> {
   if (isConvertor(convertorName)) {
     const convertor: FileConvertor<any, any, any> = convertors[convertorName];
@@ -31,13 +32,17 @@ export async function * parse(
     }
 
     function getItemStream() {
-      return convertor!.parseInput(getFileStream, { onProgress });
+      return convertor!.parseInput(getFileStream, { onProgress, isAborted });
     }
 
-    const outputItemStream = convertor.generateItems(getItemStream, { onProgress });
+    const outputItemStream = convertor.generateItems(getItemStream, { onProgress, isAborted });
 
     for await (const outputItem of outputItemStream) {
-      yield outputItem;
+      if (!isAborted?.()) {
+        yield outputItem;
+      } else {
+        throw new Error("Interrupted by user");
+      }
     }
   } else {
     throw new Error("No matching convertor found");

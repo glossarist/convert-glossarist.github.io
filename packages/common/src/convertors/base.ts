@@ -97,6 +97,7 @@ extends Convertor<
 
 export interface CommonStreamProcessingOptions {
   onProgress?: ProgressHandler;
+  isAborted?: () => boolean;
 }
 
 

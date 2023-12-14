@@ -16,6 +16,10 @@ const encoder = new TextEncoder();
 
 const DEFAULT_LINK_URN_PREFIX = 'urn:iso:std:iso:12345:';
 
+let aborted = false;
+
+function isAborted() { return aborted };
+
 
 const App: React.FC<Record<never, never>> = function () {
   const [convertorName, setConvertorName] =
@@ -23,6 +27,7 @@ const App: React.FC<Record<never, never>> = function () {
 
   const [emitFormat, setEmitFormat] = useState<'conceptList' | 'proposal'>('proposal');
 
+  const [inProgress, setInProgress] = useState(false);
   const [urnNamespace, setURNNamespace] = useState<string>(DEFAULT_LINK_URN_PREFIX);
   const [gitUsername, setGitUsername] = useState<string>('');
   const [registerVersion, setRegisterVersion] = useState<string>('');
@@ -30,17 +35,24 @@ const App: React.FC<Record<never, never>> = function () {
   const [_log, setLog] = useState<string[]>([]);
 
   async function log(msg: string) {
-    setLog(log => [ ...log, msg ]);
+    if (!aborted) {
+      setLog(log => [ ...log, msg ]);
+    }
   }
 
   async function handleDrop(upload: Upload) {
+    if (inProgress) {
+      return;
+    }
+    aborted = false;
     if (upload) {
       setLog([`Using convertor ${convertorName}`]);
       const results: Map<string, any> = new Map();
       let count: number = 0;
       log("Reading uploaded data…");
-      const itemStream = parse(convertorName, upload, log);
+      const itemStream = parse(convertorName, upload, log, isAborted);
       try {
+        setInProgress(true);
         if (emitFormat === 'proposal') {
           const stream = convertor.generateRegisterItems(itemStream, {
             urnNamespace,
@@ -64,6 +76,7 @@ const App: React.FC<Record<never, never>> = function () {
       } catch (e) {
         log(`Failed to process upload: ${(e as any).toString?.()}`);
       } finally {
+        setInProgress(false);
         if (count > 0) {
           log(`${count} items obtained; saving to JSON`);
           fileSave(new Blob(
@@ -98,6 +111,9 @@ const App: React.FC<Record<never, never>> = function () {
           Select the desired convertor and drop files below.
           Download will be initiated when conversion is complete.
         </p>
+        {inProgress
+          ? <button onClick={() => { aborted = true }} disabled={aborted}>Interrupt</button>
+          : undefined}
         <p>
           <label htmlFor="convertor">Selected convertor:</label>
           &emsp;
