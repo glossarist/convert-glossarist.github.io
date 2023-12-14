@@ -46,7 +46,7 @@ export async function * asRegisterItemsWithInferredUniversal(
       data: {
         identifier,
         localizedConcepts: {
-          eng: localizedUUID,
+          [conceptData.language_code]: localizedUUID,
         },
       },
       status: 'valid',
