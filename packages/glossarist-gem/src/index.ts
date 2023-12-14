@@ -88,7 +88,10 @@ const generateItems: GlossaristGemConvertor["generateItems"] =
 async function * generateConcepts(itemGenerator, opts) {
   let universalConceptIdx = 1;
 
-  /** Maps localized concept UUID to universal concept identifier. */
+  /**
+   * Maps localized concept UUID to universal concept identifier.
+   * NOTE: Relies on localized-concept items to be processed before concept items.
+   */
   const idMap: Record<string, string> = {
   };
 
@@ -108,19 +111,17 @@ async function * generateConcepts(itemGenerator, opts) {
     try {
       if (isUniversal) {
         const identifier = idMap[item.fileData.data.localized_concepts.eng];
-        if (identifier) {
-          item.fileData.data.identifier = identifier;
-        } else {
+        if (!identifier) {
           opts?.onProgress?.(`error: haven’t detected identifier for universal concept ${item.uuid}`);
         }
         yield {
           classID: 'concept',
           uuid: item.uuid,
-          itemData: parseUniversalConcept(item, itemProgress, universalConceptIdx)
+          itemData: parseUniversalConcept(item, itemProgress, identifier ?? `concept #${universalConceptIdx}`)
         };
         universalConceptIdx += 1;
       } else {
-        idMap[item.fileData.data.identifier] = item.uuid;
+        idMap[item.uuid] = item.fileData.data.id;
         yield {
           classID: 'localized-concept',
           uuid: item.uuid,
@@ -163,10 +164,10 @@ async function * generateGlossaryRegisterItems(itemGenerator, opts) {
 function parseUniversalConcept(
   item: IntermediateItem,
   _onProgress: ((msg: string) => void) | undefined,
-  idx: number,
+  identifier: string,
 ): ConceptData {
   return {
-    identifier: `${idx}`,
+    identifier,
     localizedConcepts:
       item.fileData.data.localized_concepts as ConceptData["localizedConcepts"],
   };
