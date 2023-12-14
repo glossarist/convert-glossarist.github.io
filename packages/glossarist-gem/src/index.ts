@@ -192,11 +192,14 @@ function parseLocalizedConcept(
         normative_status: t.normative_status as Designation["normative_status"],
         designation: t.designation as Designation["designation"],
       };
-      if (t.type === 'expression') {
+      if (t.type === 'expression' || t.type === 'abbreviation') {
         const term: Expression = {
           type: 'expression',
           partOfSpeech: t.adj ? 'adjective' : t.adverb ? 'adverb' : t.noun ? 'noun' : t.verb ? 'verb' : undefined,
           isParticiple: t.participle,
+        };
+        if (t.type === 'abbreviation') {
+          term.isAbbreviation = true;
         }
         const result: Designation = { ...designationBase, ...term };
         return result;
