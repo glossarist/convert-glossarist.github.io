@@ -182,8 +182,9 @@ function parseLocalizedConcept(
   if (!data.terms) {
     throw new Error("No terms found for concept");
   }
+  const languageCodeMap: Record<string, string> = { 'fre': 'fra' };
   const localizedConceptData: LocalizedConceptData = {
-    language_code: data.language_code,
+    language_code: languageCodeMap[data.language_code] ?? data.language_code,
     definition: data.definition,
     notes: data.notes,
     examples: data.examples,
