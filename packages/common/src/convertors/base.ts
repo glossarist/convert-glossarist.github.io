@@ -76,6 +76,7 @@ export type RegisterItemsByClassID<
 export interface File {
   blob: Uint8Array;
   name: string;
+  fullPath: string;
 }
 
 

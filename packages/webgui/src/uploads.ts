@@ -15,8 +15,9 @@ export async function * parseFilesFromUpload(input: UploadedUserInput) {
     : [input as FileSystemFileEntry];
   for await (const fileEntry of fileEntries) {
     yield await createFile(
-      await new Promise((resolve, reject) =>
-        fileEntry.file(resolve, reject)));
+      (await new Promise((resolve, reject) =>
+        fileEntry.file(resolve, reject))),
+      fileEntry.fullPath || fileEntry.name);
   }
 }
 
@@ -55,9 +56,10 @@ function getFiles(
 }
 
 
-async function createFile(file: File): Promise<_File> {
+async function createFile(file: File, fullPath: string): Promise<_File> {
   return {
     blob: new Uint8Array(await file.arrayBuffer()),
     name: file.name,
+    fullPath,
   };
 }
