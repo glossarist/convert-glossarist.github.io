@@ -42,7 +42,7 @@ AsyncGenerator<FileSystemFileEntry, void, undefined> {
 function getFiles(
   reader: FileSystemDirectoryReader,
 
-  /** How many levels to recurse. Currently limited to 1. */
+  /** How many levels to recurse. Currently ignored, recurses infinitely. */
   depth: number = 1,
 ): Promise<FileSystemFileEntry[]> {
   if (depth !== 1) {
@@ -50,7 +50,15 @@ function getFiles(
   }
   return new Promise((resolve, reject) => {
     reader.readEntries((results) => {
-      resolve(results.filter(r => r.isFile).map(r => r as FileSystemFileEntry));
+      const directoryReads = results.
+        filter(r => r.isDirectory).
+        map(r => getFiles((r as FileSystemDirectoryEntry).createReader()));
+      Promise.all(directoryReads).then(directoryReadResults => {
+        resolve([
+          ...directoryReadResults.flat(),
+          ...results.filter(r => r.isFile).map(r => r as FileSystemFileEntry),
+        ]);
+      }, reject);
     }, reject);
   });
 }
