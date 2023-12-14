@@ -27,6 +27,10 @@ export interface GlossaryRegisterConfig extends RegisterConfiguration<{
 /**
  * Converts a stream of ID & localized concept tuples
  * to a stream of objects with register item keyed by class ID.
+ *
+ * Automatically generates universal concept entries.
+ *
+ * Supports one language only.
  */
 export async function * asRegisterItemsWithInferredUniversal(
   concepts: AsyncGenerator<LocalizedConceptData, void, undefined>,
