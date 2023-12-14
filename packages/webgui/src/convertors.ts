@@ -2,11 +2,13 @@
 import { type FileConvertor } from 'common/src/convertors/index.js';
 import x3duom, { type X3DUOMConvertor } from '@riboseinc/glossarist-x3duom';
 import grSheet, { type GRSheetConvertor } from '@riboseinc/parse-gr-sheet';
+import glossaristGem, { type GlossaristGemConvertor } from '@riboseinc/glossarist-ruby';
 import { parseFilesFromUpload } from './uploads.js';
 
 
 export const convertors = {
   x3duom: x3duom() as X3DUOMConvertor,
+  'glossarist-gem': glossaristGem() as GlossaristGemConvertor,
   'gr-sheet': grSheet() as GRSheetConvertor,
 } as const;
 

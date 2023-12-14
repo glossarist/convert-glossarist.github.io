@@ -24,6 +24,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/common"\
       },\
       {\
+        "name": "@riboseinc/glossarist-ruby",\
+        "reference": "workspace:packages/glossarist-gem"\
+      },\
+      {\
         "name": "@riboseinc/parse-gr-sheet",\
         "reference": "workspace:packages/gr-sheet"\
       },\
@@ -40,6 +44,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
     "fallbackExclusionList": [\
       ["@riboseinc/glossarist-adapter-cli", ["workspace:packages/cli"]],\
+      ["@riboseinc/glossarist-ruby", ["workspace:packages/glossarist-gem"]],\
       ["@riboseinc/glossarist-x3duom", ["workspace:packages/x3duom"]],\
       ["@riboseinc/parse-gr-sheet", ["workspace:packages/gr-sheet"]],\
       ["common", ["workspace:packages/common"]],\
@@ -479,6 +484,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT"\
         }]\
       ]],\
+      ["@riboseinc/glossarist-ruby", [\
+        ["workspace:packages/glossarist-gem", {\
+          "packageLocation": "./packages/glossarist-gem/",\
+          "packageDependencies": [\
+            ["@riboseinc/glossarist-ruby", "workspace:packages/glossarist-gem"],\
+            ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.2.24"],\
+            ["common", "workspace:packages/common"],\
+            ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"],\
+            ["yaml", "npm:2.3.4"]\
+          ],\
+          "linkType": "SOFT"\
+        }]\
+      ]],\
       ["@riboseinc/glossarist-x3duom", [\
         ["workspace:packages/x3duom", {\
           "packageLocation": "./packages/x3duom/",\
@@ -514,6 +533,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.2.2-e9ccba83d2-077cf296bd.zip/node_modules/@riboseinc/paneron-registry-kit/",\
           "packageDependencies": [\
             ["@riboseinc/paneron-registry-kit", "npm:2.2.2"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:2.2.24", {\
+          "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.2.24-7224b784e0-ee473c2c0b.zip/node_modules/@riboseinc/paneron-registry-kit/",\
+          "packageDependencies": [\
+            ["@riboseinc/paneron-registry-kit", "npm:2.2.24"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2881,6 +2907,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/webgui/",\
           "packageDependencies": [\
             ["webgui", "workspace:packages/webgui"],\
+            ["@riboseinc/glossarist-ruby", "workspace:packages/glossarist-gem"],\
             ["@riboseinc/glossarist-x3duom", "workspace:packages/x3duom"],\
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
             ["@riboseinc/paneron-registry-kit", "npm:2.2.2"],\
@@ -2964,6 +2991,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/yaml-npm-1.10.2-0e780aebdf-ce4ada136e.zip/node_modules/yaml/",\
           "packageDependencies": [\
             ["yaml", "npm:1.10.2"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:2.3.4", {\
+          "packageLocation": "./.yarn/cache/yaml-npm-2.3.4-8bb6dc2c0d-e6d1dae1c6.zip/node_modules/yaml/",\
+          "packageDependencies": [\
+            ["yaml", "npm:2.3.4"]\
           ],\
           "linkType": "HARD"\
         }]\

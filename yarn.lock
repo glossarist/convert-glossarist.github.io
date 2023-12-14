@@ -365,6 +365,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@riboseinc/glossarist-ruby@workspace:^, @riboseinc/glossarist-ruby@workspace:packages/glossarist-gem":
+  version: 0.0.0-use.local
+  resolution: "@riboseinc/glossarist-ruby@workspace:packages/glossarist-gem"
+  dependencies:
+    "@riboseinc/paneron-extension-glossarist": ^2.0.11
+    "@riboseinc/paneron-registry-kit": ^2.2.24
+    common: "workspace:^"
+    typescript: ~5.1
+    yaml: ^2.3.4
+  languageName: unknown
+  linkType: soft
+
 "@riboseinc/glossarist-x3duom@workspace:packages/x3duom, @riboseinc/glossarist-x3duom@workspace:~":
   version: 0.0.0-use.local
   resolution: "@riboseinc/glossarist-x3duom@workspace:packages/x3duom"
@@ -393,6 +405,13 @@ __metadata:
   version: 2.2.2
   resolution: "@riboseinc/paneron-registry-kit@npm:2.2.2"
   checksum: 077cf296bd130baa452ae1164d9d59e300670cd48c7295fa547e2d7a9f6670528046aa0b3a1eeac17c3acdbfab3c59bbe11354ccbecea3467b5a9d9c88fbe501
+  languageName: node
+  linkType: hard
+
+"@riboseinc/paneron-registry-kit@npm:^2.2.24":
+  version: 2.2.24
+  resolution: "@riboseinc/paneron-registry-kit@npm:2.2.24"
+  checksum: ee473c2c0befe0127414e2f0dc1fc6888d7a23e14c7566686e03c73768ca643758bb3717b5ca5f1bd5da6960a3c5273b1ac6d0fc58d31a8dac72fcd99720f9eb
   languageName: node
   linkType: hard
 
@@ -2568,6 +2587,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "webgui@workspace:packages/webgui"
   dependencies:
+    "@riboseinc/glossarist-ruby": "workspace:^"
     "@riboseinc/glossarist-x3duom": "workspace:~"
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
     "@riboseinc/paneron-registry-kit": 2.2.2
@@ -2645,5 +2665,12 @@ __metadata:
   version: 1.10.2
   resolution: "yaml@npm:1.10.2"
   checksum: ce4ada136e8a78a0b08dc10b4b900936912d15de59905b2bf415b4d33c63df1d555d23acb2a41b23cf9fb5da41c256441afca3d6509de7247daa062fd2c5ea5f
+  languageName: node
+  linkType: hard
+
+"yaml@npm:^2.3.4":
+  version: 2.3.4
+  resolution: "yaml@npm:2.3.4"
+  checksum: e6d1dae1c6383bcc8ba11796eef3b8c02d5082911c6723efeeb5ba50fc8e881df18d645e64de68e421b577296000bea9c75d6d9097c2f6699da3ae0406c030d8
   languageName: node
   linkType: hard

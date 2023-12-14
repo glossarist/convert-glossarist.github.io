@@ -13,6 +13,7 @@
     "clean": "rm -r compiled dist"
   },
   "dependencies": {
+    "@riboseinc/glossarist-ruby": "workspace:^",
     "@riboseinc/glossarist-x3duom": "workspace:~",
     "@riboseinc/parse-gr-sheet": "workspace:^",
     "browser-fs-access": "^0.34.1",
