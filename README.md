@@ -88,6 +88,8 @@ It will be served at `localhost:8080`.
 
 #### Watching while serving
 
+This should be run from repo root, not from webgui package:
+
 ```
 yarn workspace webgui build --serve --watch $(pwd)/packages/gr-sheet/src
 ```
