@@ -6,7 +6,7 @@ import {
   type GlossaryRegisterConfig,
   type LinkParser,
   processLinks,
-  asRegisterItems,
+  asRegisterItemsWithInferredUniversal,
 } from '../../common/src/glossary.js';
 
 
@@ -106,13 +106,13 @@ const generateRegisterItems: X3DUOMConvertor["generateRegisterItems"] =
 async function * generateGlossaryRegisterItems(itemGenerator, opts) {
   console.info("LINKS?", opts?.urnNamespace);
   const stream = opts?.urnNamespace
-    ? processLinks(parseLinks, asRegisterItems(itemGenerator, opts), {
+    ? processLinks(parseLinks, asRegisterItemsWithInferredUniversal(itemGenerator, opts), {
         linkURNPrefix: opts.urnNamespace,
         onProgress: opts.onProgress
           ? function (msg) { opts!.onProgress!(`Process links: ${msg}`); }
           : undefined,
       })
-    : asRegisterItems(itemGenerator, opts);
+    : asRegisterItemsWithInferredUniversal(itemGenerator, opts);
   yield * stream;
 
   //if (opts?.urnNamespace) {
