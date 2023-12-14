@@ -28,8 +28,8 @@ extends FileConvertor<
 
 export default function getConvertor(): GlossaristGemConvertor {
   return {
-    label: "Glossarist gem output adapter",
-    inputDescription: "A directory containing concept and localized-concept subdirectories with YAML files",
+    label: "glossarist-ruby output adapter",
+    inputDescription: "A directory containing concept and localized-concept subdirectories with YAML files as output by glossarist-ruby gem",
     parseInput,
     generateItems,
     generateRegisterItems,
