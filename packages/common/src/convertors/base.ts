@@ -85,7 +85,7 @@ export interface File {
  */
 export interface FileConvertor<
   IntermediateItem extends Record<string, any>,
-  OutputItem extends Record<string,any>,
+  OutputItem extends Record<string, any>,
   RegisterConfig extends RegisterConfiguration | null>
 extends Convertor<
   File,
