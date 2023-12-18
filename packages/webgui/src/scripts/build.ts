@@ -34,9 +34,7 @@ const noop = (..._: any[]) => void 0;
 
 /** Main routine for building everything. */
 async function build({ distdir, pubdir, srcdir, logLevel }: BuildOptions) {
-  if (logLevel === 'debug') {
-    console.debug("building all...");
-  }
+  console.debug("building all...");
   return await Promise.all([
     copyAssets(distdir, pubdir),
     buildJS(distdir, srcdir, logLevel),
@@ -45,6 +43,7 @@ async function build({ distdir, pubdir, srcdir, logLevel }: BuildOptions) {
 
 
 async function copyAssets(distdir: string, pubdir: string) {
+  console.debug("Copying assets from", resolve(pubdir), "to", distdir);
   await copyFile(
     join(pubdir, 'index.html'),
     join(distdir, 'index.html'),
@@ -53,6 +52,7 @@ async function copyAssets(distdir: string, pubdir: string) {
 
 
 async function buildJS(distdir: string, srcdir: string, logLevel: LogLevel) {
+  console.debug("Building JS assets from", resolve(srcdir), "to", distdir);
   return await esbuild({
     entryPoints: [
       join(srcdir, 'index.tsx'),
@@ -128,10 +128,15 @@ async function main() {
   }
 
   const _build = makeSequential(async function buildCLI() {
+    console.debug("Building site...");
     return await build(buildOpts);
   });
 
+  console.debug("Ensuring distdir at path:", resolve(buildOpts.distdir));
+
   await mkdir(buildOpts.distdir, { recursive: true });
+
+  console.debug("Ensuring access to srcdir at path:", resolve(buildOpts.srcdir));
 
   await Promise.all([
     access(buildOpts.distdir, constants.W_OK),
@@ -144,6 +149,7 @@ async function main() {
     const ac = new AbortController();
     function abortServe() { ac.abort(); }
     process.on('SIGINT', abortServe);
+    console.debug("Serving...");
     try {
       await _build();
       await serve(
@@ -157,6 +163,7 @@ async function main() {
         ac.signal);
     } catch (e) {
       abortServe();
+      console.debug("Stopped server");
       throw e;
     }
   } else {
