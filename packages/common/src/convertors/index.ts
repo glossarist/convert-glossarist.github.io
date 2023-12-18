@@ -4,6 +4,7 @@ import type {
   CommonStreamProcessingOptions,
   RegisterItemsByClassID,
 } from './base.js';
+import { v4 as generateUUID } from '@lukeed/uuid/secure';
 
 export type { Convertor, FileConvertor, File } from './base.js';
 
@@ -23,7 +24,7 @@ export async function asProposal<R extends RegisterConfiguration>(
   itemPayloads: Record<string, RegisterItem<any>>,
 }> {
   const now = new Date();
-  const id = crypto.randomUUID();
+  const id = generateUUID();
   const proposalDraft: ProposalDraft = {
     ...proposalOptions,
     id,

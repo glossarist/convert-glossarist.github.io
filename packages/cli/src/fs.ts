@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
-import type { File } from 'common';
+import path from 'node:path';
+import type { File, } from 'common';
 
 
 /**
@@ -9,7 +10,8 @@ export async function * fsPathToFiles(absPath: string) {
   for (const filepath of await fs.readdir(absPath)) {
     const file: File = {
       blob: Uint8Array.from(await fs.readFile(filepath)),
-      name: filepath,
+      name: path.basename(filepath),
+      fullPath: filepath,
     };
     yield file;
   }
