@@ -49,4 +49,5 @@ jobs:
         with:
           workflow: build_deploy.yml
           repo: glossarist/convert.glossarist.org
+          token: ${{ secrets.GITHUB_TOKEN }}
           # inputs: '{ "message": "blah blah", "something": false }'
