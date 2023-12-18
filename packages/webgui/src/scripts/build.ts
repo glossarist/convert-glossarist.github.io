@@ -111,9 +111,9 @@ async function main() {
     srcdir: join(PACKAGE_ROOT, 'src'),
     pubdir: join(PACKAGE_ROOT, 'public'),
     logLevel:
-      values.debug
+      values.debug !== undefined
         ? 'debug'
-        : values.verbose
+        : values.verbose !== undefined
             ? 'info'
             : 'error',
   };
