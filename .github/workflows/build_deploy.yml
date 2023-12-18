@@ -49,4 +49,6 @@ jobs:
         with:
           workflow: build_deploy.yml
           repo: glossarist/convert.glossarist.org
+          token: ${{ secrets.GLOSSARIST_CI_PAT_TOKEN }}
+          ref: main
           # inputs: '{ "message": "blah blah", "something": false }'
