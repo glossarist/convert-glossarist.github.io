@@ -28,9 +28,3 @@ jobs:
       - name: Compile all packages
         run: |
           yarn compile-all
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          name: webgui-dist
-          path: packages/webgui/dist/
