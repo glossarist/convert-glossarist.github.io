@@ -450,6 +450,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@lukeed/csprng", [\
+        ["npm:1.1.0", {\
+          "packageLocation": "./.yarn/cache/@lukeed-csprng-npm-1.1.0-d28ed78cc2-926f5f7fc6.zip/node_modules/@lukeed/csprng/",\
+          "packageDependencies": [\
+            ["@lukeed/csprng", "npm:1.1.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@lukeed/uuid", [\
+        ["npm:2.0.1", {\
+          "packageLocation": "./.yarn/cache/@lukeed-uuid-npm-2.0.1-4e489a7764-f5e71e4da8.zip/node_modules/@lukeed/uuid/",\
+          "packageDependencies": [\
+            ["@lukeed/uuid", "npm:2.0.1"],\
+            ["@lukeed/csprng", "npm:1.1.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@npmcli/fs", [\
         ["npm:3.1.0", {\
           "packageLocation": "./.yarn/cache/@npmcli-fs-npm-3.1.0-0844a57978-a50a6818de.zip/node_modules/@npmcli/fs/",\
@@ -549,6 +568,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/gr-sheet/",\
           "packageDependencies": [\
             ["@riboseinc/parse-gr-sheet", "workspace:packages/gr-sheet"],\
+            ["@lukeed/uuid", "npm:2.0.1"],\
             ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.19"],\
             ["@riboseinc/paneron-registry-kit", "npm:2.2.2"],\
             ["common", "workspace:packages/common"],\
@@ -984,6 +1004,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/common/",\
           "packageDependencies": [\
             ["common", "workspace:packages/common"],\
+            ["@lukeed/uuid", "npm:2.0.1"],\
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
             ["@riboseinc/paneron-registry-kit", "npm:2.2.2"],\
             ["@types/node", "npm:18.16.19"],\
