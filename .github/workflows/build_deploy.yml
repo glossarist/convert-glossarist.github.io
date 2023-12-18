@@ -16,26 +16,26 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: production
     steps:
-      - name: Use Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18.x'
-
       - uses: actions/checkout@v4
+
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'yarn'
 
       - name: Enable Yarn Berry
         run: |
           corepack enable
           corepack prepare yarn@stable --activate
-      # - name: Compile all packages
-      #   # TODO: Get rid of, the esbuild step should be sufficient.
-      #   # However, currently some packages rely on `compiled/` paths,
-      #   # which are created by running `compile` commands.
-      #   run: |
-      #     yarn compile-all
+
+      - name: Compile all packages
+        # TODO: Get rid of, the esbuild step should be sufficient.
+        # However, currently some packages rely on `compiled/` paths,
+        # which are created by running `compile` commands.
+        run: |
+          yarn compile-all
 
   # Deployment job
   deploy:
