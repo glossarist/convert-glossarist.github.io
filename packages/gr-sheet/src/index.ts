@@ -16,6 +16,7 @@ import type { UoMData } from '@riboseinc/paneron-extension-geodetic-registry/cla
 import type { NonCompoundCRSData } from '@riboseinc/paneron-extension-geodetic-registry/classes/crs.js';
 
 import xlsx, { readSheetNames, type Row } from 'read-excel-file';
+import { v4 as generateUUID } from '@lukeed/uuid/secure';
 
 import type { FileConvertor } from '../../common/src/convertors/index.js';
 import { teeAsync } from '../../common/src/util.js';
@@ -210,7 +211,7 @@ async function * generateGRItems(parsedSheetItems, opts) {
         const classID = processor.getClassID(
           rowParsed as Record<Exclude<(typeof processor)["fields"][number], null>, string>
         );
-        const itemID = crypto.randomUUID();
+        const itemID = generateUUID();
         const itemRef = { classID, itemID };
         const identifier = availableID;
         availableID = availableID - 1;
