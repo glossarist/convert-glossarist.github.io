@@ -19,7 +19,7 @@
   "type": "module",
   "homepage": "https://github.com/glossarist/migration-adapters/tree/main/packages/cli",
   "devDependencies": {
-    "@types/node": "^20.4.2",
+    "@types/node": "18",
     "common": "workspace:^",
     "esbuild": "~0.18",
     "typescript": "~5.1"

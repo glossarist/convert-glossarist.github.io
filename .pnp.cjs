@@ -475,7 +475,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@riboseinc/glossarist-adapter-cli", "workspace:packages/cli"],\
             ["@riboseinc/glossarist-x3duom", "workspace:packages/x3duom"],\
-            ["@types/node", "npm:20.4.2"],\
+            ["@types/node", "npm:18.19.3"],\
             ["cmd-ts", "npm:0.12.1"],\
             ["common", "workspace:packages/common"],\
             ["esbuild", "npm:0.18.12"],\
@@ -575,10 +575,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:20.4.2", {\
-          "packageLocation": "./.yarn/cache/@types-node-npm-20.4.2-0b33863e43-99e544ea75.zip/node_modules/@types/node/",\
+        ["npm:18.19.3", {\
+          "packageLocation": "./.yarn/cache/@types-node-npm-18.19.3-9a233afc47-58c4fa45a7.zip/node_modules/@types/node/",\
           "packageDependencies": [\
-            ["@types/node", "npm:20.4.2"]\
+            ["@types/node", "npm:18.19.3"],\
+            ["undici-types", "npm:5.26.5"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -2814,6 +2815,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packagePeers": [\
             "@types/typescript",\
             "typescript"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["undici-types", [\
+        ["npm:5.26.5", {\
+          "packageLocation": "./.yarn/cache/undici-types-npm-5.26.5-de4f7c7bb9-3192ef6f3f.zip/node_modules/undici-types/",\
+          "packageDependencies": [\
+            ["undici-types", "npm:5.26.5"]\
           ],\
           "linkType": "HARD"\
         }]\
