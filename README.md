@@ -1,5 +1,7 @@
 # Converter collection
 
+[![build_deploy](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml)
+
 NOTE: This started to aid in migration to Glossarist,
 but being expanded to cover other data models.
 The repository may soon be renamed and moved to a more appropriate place.
