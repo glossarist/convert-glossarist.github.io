@@ -3,7 +3,7 @@ import type { RegisterItem, RegisterConfiguration, ItemClassConfiguration } from
 import type { ConceptData } from '@riboseinc/paneron-extension-glossarist/classes/concept.js';
 import type { LocalizedConceptData } from '@riboseinc/paneron-extension-glossarist/classes/localizedConcept/LocalizedConceptData.js';
 import type { Designation } from '@riboseinc/paneron-extension-glossarist/models/concepts.js';
-import { v4 as generateUUID } from '@lukeed/uuid/secure';
+
 import { teeAsync } from './util.js';
 
 import type {
@@ -43,8 +43,8 @@ export async function * asRegisterItemsWithInferredUniversal(
     const designation = conceptData.terms[0]!.designation;
     const identifier = /* opts?.conceptIDMaker?.(idx, conceptData) ?? */ `${idx + 1}`;
     opts?.onProgress?.(`Outputting as register items: #${idx + 1} (${designation}) (using ID “${identifier}”)`);
-    const universalUUID = generateUUID();
-    const localizedUUID = generateUUID();
+    const universalUUID = crypto.randomUUID();
+    const localizedUUID = crypto.randomUUID();
     const universalConcept: RegisterItem<ConceptData> = {
       id: universalUUID,
       data: {
