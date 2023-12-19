@@ -1,6 +1,8 @@
 # Converter collection
 
-[![build_deploy](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml)
+[![compile_all](https://github.com/glossarist/migration-adapters/actions/workflows/compile.yml/badge.svg)](https://github.com/glossarist/migration-adapters/actions/workflows/compile.yml)
+
+[![webgui deploy](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml)
 
 NOTE: This started to aid in migration to Glossarist,
 but being expanded to cover other data models.
