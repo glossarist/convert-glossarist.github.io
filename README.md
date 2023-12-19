@@ -27,7 +27,7 @@ may only be deployed or distributed.
 ### Pre-requisites
 
 Below instructions will expect you to either use
-NodeJS 18 with Yarn 3+ on your host machine
+NodeJS 20 with Yarn on your host machine
 (no-Docker approach is labeled “host” below)
 or to have Docker (e.g., as Docker Desktop).
 
