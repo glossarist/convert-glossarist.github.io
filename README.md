@@ -2,16 +2,18 @@
 
 [![compile_all](https://github.com/glossarist/migration-adapters/actions/workflows/compile.yml/badge.svg)](https://github.com/glossarist/migration-adapters/actions/workflows/compile.yml)
 
-[![webgui deploy](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml)
+Feel free to file an issue if you are looking for help implementing
+a migration adapter for your pre-existing terminology data.
+
+### [convert.glossarist.org](convert.glossarist.org)
+
+[![build_deploy](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml)
+
+## Development
 
 NOTE: This started to aid in migration to Glossarist,
 but being expanded to cover other data models.
 The repository may soon be renamed and moved to a more appropriate place.
-
-Please file an issue if you are looking for help implementing
-a migration adapter for your pre-existing terminology data.
-
-## Development
 
 This is a TypeScript monorepo.
 
