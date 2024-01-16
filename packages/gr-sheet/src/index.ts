@@ -324,8 +324,8 @@ async function * generateGRItems(parsedSheetItems, opts) {
       };
 
     } else {
-      console.debug("Skipping item", sheetItem);
-      opts?.onProgress?.(`Skipping ${sheetItem.sheet}/${sheetItem.rowRaw[0]}`);
+      console.debug("Skipping entity", sheetItem);
+      opts?.onProgress?.(`${sheetItem.sheet}/${sheetItem.rowRaw[0]}: not outputting a register item`);
     }
   }
 }
