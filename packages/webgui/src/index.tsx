@@ -104,7 +104,7 @@ const App: React.FC<Record<never, never>> = function () {
 
   return (
     <div className={styles.app}>
-      <h1 className={styles.header}>Convert concepts to Glossarist format</h1>
+      <h1 className={styles.header}>Convert data to Paneron format</h1>
       <div
           className={styles.convertorSelector}>
         <p>
@@ -131,7 +131,7 @@ const App: React.FC<Record<never, never>> = function () {
           </select>
         </p>
         <p>
-          <label htmlFor="emitProposal">Output as register change proposal:</label>
+          <label htmlFor="emitProposal">Output as register proposal:</label>
           &emsp;
           <input
             type="checkbox"
