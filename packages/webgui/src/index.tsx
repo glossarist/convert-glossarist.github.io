@@ -40,55 +40,62 @@ const App: React.FC<Record<never, never>> = function () {
     }
   }
 
-  async function handleDrop(upload: Upload) {
+  async function obtainResultsAsJSONBlob(upload: Upload): Promise<Blob> {
+    setLog([`Using convertor ${convertorName}`]);
+    const results: Map<string, any> = new Map();
+    let count: number = 0;
+    log("Reading uploaded data…");
+    const itemStream = parse(convertorName, upload, log, isAborted);
+    try {
+      setInProgress(true);
+      if (emitFormat === 'proposal') {
+        const stream = convertor.generateRegisterItems(itemStream, {
+          urnNamespace,
+          onProgress: function (msg) { log(`Generate register items: ${msg}`); },
+        });
+        const { proposalDraft, itemPayloads } = await asProposal(stream, {
+          submittingStakeholderGitServerUsername: gitUsername,
+          registerVersion,
+        }, {
+          onProgress: function (msg) { log(`Prepare proposal: ${msg}`); },
+        });
+        results.set('proposalDraft', proposalDraft);
+        results.set('itemPayloads', itemPayloads);
+        count += 1;
+      } else {
+        for await (const item of itemStream) {
+          results.set('items', [...(results.get('items') ?? []), item]);
+          count += 1;
+        }
+      }
+    } catch (e) {
+      log(`Error processing upload: ${(e as any).toString?.()}`);
+    } finally {
+      setInProgress(false);
+      if (count > 0) {
+        log(`${count} results obtained.`);
+      } else {
+        log("No results obtained.");
+      }
+    }
+    return new Blob(
+      [encoder.encode(JSON.stringify(Object.fromEntries(results.entries()), undefined, 4))],
+      { type: 'application/json' },
+    );
+  }
+
+  function handleDrop(upload?: Upload) {
     if (inProgress) {
       return;
     }
     aborted = false;
     if (upload) {
-      setLog([`Using convertor ${convertorName}`]);
-      const results: Map<string, any> = new Map();
-      let count: number = 0;
-      log("Reading uploaded data…");
-      const itemStream = parse(convertorName, upload, log, isAborted);
-      try {
-        setInProgress(true);
-        if (emitFormat === 'proposal') {
-          const stream = convertor.generateRegisterItems(itemStream, {
-            urnNamespace,
-            onProgress: function (msg) { log(`Generate register items: ${msg}`); },
-          });
-          const { proposalDraft, itemPayloads } = await asProposal(stream, {
-            submittingStakeholderGitServerUsername: gitUsername,
-            registerVersion,
-          }, {
-            onProgress: function (msg) { log(`Prepare proposal: ${msg}`); },
-          });
-          results.set('proposalDraft', proposalDraft);
-          results.set('itemPayloads', itemPayloads);
-          count += 1;
-        } else {
-          for await (const item of itemStream) {
-            results.set('items', [...(results.get('items') ?? []), item]);
-            count += 1;
-          }
-        }
-      } catch (e) {
-        log(`Failed to process upload: ${(e as any).toString?.()}`);
-      } finally {
-        setInProgress(false);
-        if (count > 0) {
-          log(`${count} items obtained; saving to JSON`);
-          fileSave(new Blob(
-            [encoder.encode(JSON.stringify(Object.fromEntries(results.entries()), undefined, 4))],
-            { type: 'application/json' },
-          ), {
-            fileName: `${convertorName}-conversion-result.json`,
-          });
-        } else {
-          log("No results obtained.");
-        }
-      }
+      fileSave(
+        obtainResultsAsJSONBlob(upload),
+        {
+          fileName: `${convertorName}-conversion-result.json`,
+        },
+      );
     }
   }
 
