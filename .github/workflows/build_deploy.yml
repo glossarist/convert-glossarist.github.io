@@ -19,11 +19,11 @@ jobs:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger deployment of convert.glossarist.org
+      - name: Trigger deployment of convert.paneron.org
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: build_deploy.yml
-          repo: glossarist/convert.glossarist.org
+          repo: paneron/convert.paneron.org
           token: ${{ secrets.GLOSSARIST_CI_PAT_TOKEN }}
           ref: main
           # inputs: '{ "message": "blah blah", "something": false }'
