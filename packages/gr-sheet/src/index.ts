@@ -757,7 +757,13 @@ const SupportedSheets = {
   }),
   [Sheets.EXTENTS]: makeProcessor({
     fields: ['description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate'],
-    toItem: ({ description, s, w, n, e }) => ({ name: description, s, w, n, e }),
+    toItem: ({ description, s, w, n, e }) => ({
+      name: description,
+      s: parseFloat(s),
+      w: parseFloat(w),
+      n: parseFloat(n),
+      e: parseFloat(e),
+    }),
   }),
   [Sheets.CITATIONS]: makeProcessor({
     fields: ['title', 'alternateTitles', 'author', 'publisher', 'publicationDate', 'revisionDate', 'edition', 'editionDate', 'seriesName', 'issue', 'page', 'otherDetails', 'uri'],
