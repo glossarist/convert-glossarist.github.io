@@ -309,7 +309,9 @@ async function * generateGRItems(parsedSheetItems, opts) {
 
       } catch (e) {
         console.warn("Unable to transform sheet row to item", sheetItem.sheet, sheetItem.rowParsed, e);
-        throw e;
+        opts?.onProgress?.(`${sheetItem.sheet}/${sheetItem.rowRaw[0]}: error processing register item: ${String(e)}`);
+        continue;
+        //throw e;
       }
 
       console.debug("Processed", sheetItem, "into", parsedItem);
