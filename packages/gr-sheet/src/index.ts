@@ -859,7 +859,7 @@ function predicate(query: string, mode: Predicate["mode"]): Predicate {
  * and UoM pointer.
  */
 function parseValueWithUoM(raw: string): { value: number, unitOfMeasurement: Predicate } {
-  const value = parseInt(raw.substring(0, raw.length - 1), 10);
+  const value = parseFloat(raw.substring(0, raw.length - 1), 10);
   let uomAlias: any;
   let uomRaw = raw.slice(raw.length - 1);
   try {
