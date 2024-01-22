@@ -659,7 +659,6 @@ const SupportedSheets = {
         measureType: item.measureType as any,
       };
       if (item.baseUnit?.trim?.() != '') {
-        console.debug("handling baseUnit");
         c.baseUnit = resolveReference(item.baseUnit, 'id') as string | Predicate;
       }
       return c;
