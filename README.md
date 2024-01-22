@@ -5,7 +5,7 @@
 Feel free to file an issue if you are looking for help implementing
 a migration adapter for your pre-existing terminology data.
 
-### [convert.paneron.org](convert.paneron.org)
+### [convert.paneron.org](https://convert.paneron.org)
 
 [![build_deploy](https://github.com/paneron/convert.paneron.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/paneron/convert.paneron.org/actions/workflows/build_deploy.yml)
 
