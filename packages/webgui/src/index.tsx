@@ -89,11 +89,14 @@ const App: React.FC<Record<never, never>> = function () {
       return;
     }
     aborted = false;
-    if (upload) {
+    if (upload && upload.length > 0) {
+      const filename = upload.length > 1
+        ? `${upload.length}-file`
+        : upload[0]?.name.slice(0, 18);
       fileSave(
         obtainResultsAsJSONBlob(upload),
         {
-          fileName: `${convertorName}-conversion-result.json`,
+          fileName: `${convertorName}-${filename}-conversion-result.json`,
         },
       );
     }
