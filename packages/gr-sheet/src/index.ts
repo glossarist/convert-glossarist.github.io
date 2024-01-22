@@ -171,7 +171,7 @@ async function * parseSpreadsheetFiles(fileGenerator, opts) {
                 map((fname, idx) => ({
                   [fname as string]:
                     // Avoid nulls
-                    row[idx]
+                    row[idx] !== null
                       ? `${row[idx]}`
                       : ''
                 })).
