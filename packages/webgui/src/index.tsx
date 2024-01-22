@@ -223,7 +223,7 @@ const App: React.FC<Record<never, never>> = function () {
 
 
 const DropReceiver: React.FC<{
-  onDrop: (input: Upload) => void;
+  onDrop: (input?: Upload) => void;
   prompt?: JSX.Element;
   className?: string;
 }> = function ({ onDrop, prompt, className }) {
