@@ -1,13 +1,13 @@
 # Converter collection
 
-[![compile_all](https://github.com/glossarist/migration-adapters/actions/workflows/compile.yml/badge.svg)](https://github.com/glossarist/migration-adapters/actions/workflows/compile.yml)
+[![compile_all](https://github.com/paneron/convertors/actions/workflows/compile.yml/badge.svg)](https://github.com/paneron/convertors/actions/workflows/compile.yml)
 
 Feel free to file an issue if you are looking for help implementing
 a migration adapter for your pre-existing terminology data.
 
-### [convert.glossarist.org](convert.glossarist.org)
+### [convert.paneron.org](convert.paneron.org)
 
-[![build_deploy](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/glossarist/convert.glossarist.org/actions/workflows/build_deploy.yml)
+[![build_deploy](https://github.com/paneron/convert.paneron.org/actions/workflows/build_deploy.yml/badge.svg)](https://github.com/paneron/convert.paneron.org/actions/workflows/build_deploy.yml)
 
 ## Development
 
