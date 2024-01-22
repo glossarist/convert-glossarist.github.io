@@ -24,6 +24,6 @@ jobs:
         with:
           workflow: build_deploy.yml
           repo: paneron/convert.paneron.org
-          token: ${{ secrets.GLOSSARIST_CI_PAT_TOKEN }}
+          token: ${{ secrets.GH_PANERON_CI_TOKEN }}
           ref: main
           # inputs: '{ "message": "blah blah", "something": false }'
