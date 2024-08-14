@@ -838,7 +838,7 @@ function makePredicateQuery(
   if (idNum !== undefined) {
     return  `data.identifier === ${idNum}`;
   } else {
-    throw new Error(`Identifier ${sheetItemID} is unparseable or invalid`);
+    throw new Error(`Identifier ‘${sheetItemID}’ is unparseable or invalid`);
   }
 }
 
