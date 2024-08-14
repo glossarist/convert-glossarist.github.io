@@ -678,9 +678,6 @@ const SupportedSheets = {
     getClassID: () => 'coordinate-op-method',
     toRegisterItem: function parseCoordinateOpMethod({ parameters, formula, informationSources, sourceCRSDimensionCount, targetCRSDimensionCount }, resolveRelated, resolveReference) {
       const item: Omit<UsePredicateLists<CoordinateOpMethod, 'parameters'>, 'identifier' | keyof CommonGRItemData> = {
-        // XXX
-        // sourceCRSDimensionCount: sourceCRSDimensionCount.trim() !== '' ? parseInt(sourceCRSDimensionCount, 10) : null,
-        // targetCRSDimensionCount: targetCRSDimensionCount.trim() !== '' ? parseInt(targetCRSDimensionCount, 10) : null,
         parameters: parameters.trim() !== ''
           ? parameters.split(';').map(paramUUID => resolveReference(paramUUID, 'id'))
           : [],
