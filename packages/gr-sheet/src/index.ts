@@ -744,7 +744,8 @@ const SupportedSheets = {
         try {
           c.fileCitation = resolveRelated(citation);
         } catch (e) {
-          opts?.onProgress?.(`ERROR: Failed to resolve related citation based on “${citation}”`);
+          opts?.onProgress?.(`ERROR: Failed to resolve op. parameter file reference citation based on “${citation}”`);
+          console.error("Failed to resolve related", e);
           c.fileCitation = citation;
         }
       }
