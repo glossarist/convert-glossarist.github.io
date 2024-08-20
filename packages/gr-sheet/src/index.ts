@@ -591,13 +591,21 @@ const SupportedSheets = {
     toRegisterItem: function toNonCompoundCRS(item, resolveRelated, resolveReference) {
       const extent = resolveRelated(extractItemID(item.extent)) as unknown as Extent;
 
+      const baseCRS = item.baseCRS.trim() !== ''
+        ? resolveReference(item.baseCRS, 'generic')
+        : null;
+
+      const operation = item.operation.trim() !== ''
+        ? resolveReference(item.operation, 'generic')
+        : null;
+
       type NonCompoundCRSPredicateFieldNames = 'coordinateSystem' | 'baseCRS' | 'operation';
       type SharedData = Item<Omit<NonCompoundCRSData, 'datum'>, NonCompoundCRSPredicateFieldNames>;
       const shared: SharedData = {
         scope: item.scope,
         coordinateSystem: resolveReference(item.coordinateSystem, 'generic'),
-        baseCRS: resolveReference(item.baseCRS, 'generic'),
-        operation: resolveReference(item.operation, 'generic'),
+        baseCRS,
+        operation,
         extent,
       };
 
