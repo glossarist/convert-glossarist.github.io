@@ -773,11 +773,20 @@ const SupportedSheets = {
     }),
   }),
   [Sheets.CITATIONS]: makeProcessor({
-    fields: ['title', 'alternateTitles', 'author', 'publisher', 'publicationDate', 'revisionDate', 'edition', 'editionDate', 'seriesName', 'issue', 'page', 'otherDetails', 'uri'],
-    toItem: function parseCitation ({ title, publisher }) {
+    fields: ['title', 'alternateTitles', 'author', 'publisher', 'publicationDate', 'revisionDate', 'edition', 'editionDate', 'seriesName', 'seriesIssueID', 'seriesPage', 'otherDetails', 'uri'],
+    toItem: function parseCitation ({ title, publicationDate, revisionDate, edition, author, publisher, otherDetails, seriesName, seriesIssueID, seriesPage, uri }) {
       return {
         // XXX
         title,
+        publicationDate,
+        revisionDate,
+        edition,
+        author,
+        seriesName,
+        seriesIssueID,
+        seriesPage,
+        otherDetails,
+        uri,
         //alternateTitles: item.alternateTitles.split(';').map(t => t.trim()),
         publisher,
       };
