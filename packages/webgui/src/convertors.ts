@@ -7,9 +7,9 @@ import { parseFilesFromUpload } from './uploads.js';
 
 
 export const convertors = {
+  'gr-sheet': grSheet() as GRSheetConvertor,
   x3duom: x3duom() as X3DUOMConvertor,
   'glossarist-gem': glossaristGem() as GlossaristGemConvertor,
-  'gr-sheet': grSheet() as GRSheetConvertor,
 } as const;
 
 
