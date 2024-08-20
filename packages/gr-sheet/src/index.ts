@@ -496,9 +496,8 @@ const SupportedSheets = {
   [Sheets.TRANSFORMATIONS]: makeItemProcessor({
     fields: [
       'sourceCRS', 'targetCRS',
-      'coordinateOperationMethod',
       null,  // <- Operation type (always “transformation”)
-      'scope', 'remarks', 'method', 'extent', 'params', 'operationVersion', 'accuracy', 'informationSources'],
+      'scope', 'remarks', 'coordinateOperationMethod', 'extent', 'params', 'operationVersion', 'accuracy', 'informationSources'],
     getClassID: function () {
       return 'coordinate-ops--transformation';
     },
