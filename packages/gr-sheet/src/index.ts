@@ -246,9 +246,11 @@ async function * generateGRItems(parsedSheetItems, opts) {
     throw new Error(`Unable to resolve reference, ${itemID}`);
   }
 
-  const resolveRelated = function resolveRelated(sheetItemID: string) {
-    console.debug("Resolving item", sheetItemID);
+  const resolveRelated = function resolveRelated(cellContents: string) {
 
+    //const itemID = sheetItemID.split(' ')[0];
+    const sheetItemID = extractItemID(cellContents);
+    console.debug("Resolving item", sheetItemID, cellContents);
     const sheetName = getSheetName(sheetItemID.slice(0, 2));
     if (cache[sheetName]) {
       const parsedRow = cache[sheetName]![sheetItemID];
