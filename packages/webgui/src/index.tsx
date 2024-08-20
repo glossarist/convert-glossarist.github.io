@@ -23,7 +23,7 @@ function isAborted() { return aborted };
 
 const App: React.FC<Record<never, never>> = function () {
   const [convertorName, setConvertorName] =
-    useState<keyof typeof convertors>('x3duom');
+    useState<keyof typeof convertors>('gr-sheet');
 
   const [emitFormat, setEmitFormat] = useState<'conceptList' | 'proposal'>('proposal');
 
