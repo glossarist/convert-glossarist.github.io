@@ -496,6 +496,7 @@ const SupportedSheets = {
   [Sheets.TRANSFORMATIONS]: makeItemProcessor({
     fields: [
       'sourceCRS', 'targetCRS',
+      'coordinateOperationMethod',
       null,  // <- Operation type (always “transformation”)
       'scope', 'remarks', 'method', 'extent', 'params', 'operationVersion', 'accuracy', 'informationSources'],
     getClassID: function () {
@@ -522,8 +523,10 @@ const SupportedSheets = {
           };
           return param;
         });
-      const data: Item<TransformationData, 'sourceCRS' | 'targetCRS'> = {
+      const data: Item<TransformationData, 'sourceCRS' | 'targetCRS' | 'coordOperationMethod'> = {
         operationVersion: item.operationVersion,
+        coordOperationMethod: resolveReference(item.coordinateOperationMethod, 'id'),
+        scope: item.scope,
         // TODO: Not required, UoM is always metre.
         accuracy: parseValueWithUoM(item.accuracy) as unknown as TransformationData["accuracy"],
         sourceCRS: resolveReference(item.sourceCRS, 'generic'),
