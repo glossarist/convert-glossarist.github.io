@@ -387,10 +387,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@riboseinc/paneron-extension-geodetic-registry@npm:^1.0.19":
-  version: 1.0.19
-  resolution: "@riboseinc/paneron-extension-geodetic-registry@npm:1.0.19"
-  checksum: f5cad855149365f0f28b747dc07a67df5835b20e3839ae3d85a2a3fe4552a9171e28493719562117fe2ad4899f08a411679d09b7049c1a005bb1ac5065137271
+"@riboseinc/paneron-extension-geodetic-registry@npm:^1.0.58":
+  version: 1.0.58
+  resolution: "@riboseinc/paneron-extension-geodetic-registry@npm:1.0.58"
+  checksum: 873ffef035133bbcda4347eafd657d3c01c7f14fdd9bec71f2df2af4e153162f72ca31252f104d0b80cbb2c8c41562769e39f4841cd44db024dd6988cc561225
   languageName: node
   linkType: hard
 
@@ -419,7 +419,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@riboseinc/parse-gr-sheet@workspace:packages/gr-sheet"
   dependencies:
-    "@riboseinc/paneron-extension-geodetic-registry": ^1.0.19
+    "@riboseinc/paneron-extension-geodetic-registry": ^1.0.58
     "@riboseinc/paneron-registry-kit": 2.2.2
     common: "workspace:^"
     read-excel-file: ^5.6.1

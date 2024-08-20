@@ -511,10 +511,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@riboseinc/paneron-extension-geodetic-registry", [\
-        ["npm:1.0.19", {\
-          "packageLocation": "./.yarn/cache/@riboseinc-paneron-extension-geodetic-registry-npm-1.0.19-ef87367783-f5cad85514.zip/node_modules/@riboseinc/paneron-extension-geodetic-registry/",\
+        ["npm:1.0.58", {\
+          "packageLocation": "./.yarn/cache/@riboseinc-paneron-extension-geodetic-registry-npm-1.0.58-bb4769e6e0-873ffef035.zip/node_modules/@riboseinc/paneron-extension-geodetic-registry/",\
           "packageDependencies": [\
-            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.19"]\
+            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.58"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -549,7 +549,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/gr-sheet/",\
           "packageDependencies": [\
             ["@riboseinc/parse-gr-sheet", "workspace:packages/gr-sheet"],\
-            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.19"],\
+            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.58"],\
             ["@riboseinc/paneron-registry-kit", "npm:2.2.2"],\
             ["common", "workspace:packages/common"],\
             ["read-excel-file", "npm:5.6.1"],\
