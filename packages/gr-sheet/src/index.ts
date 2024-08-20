@@ -789,7 +789,7 @@ function isSupportedSheetName(val: string): val is SupportedSheetName {
 
 
 type ReplaceKeys<T, Keys extends keyof T, WithType> = Omit<T, Keys> & { [key in Keys]: WithType };
-type UsePredicates<T, Keys extends keyof T> = ReplaceKeys<T, Keys, Predicate | InternalItemReference | string>;
+type UsePredicates<T, Keys extends keyof T> = ReplaceKeys<T, Keys, Predicate | InternalItemReference | string | null>;
 type UsePredicateLists<T, Keys extends keyof T> = ReplaceKeys<T, Keys, (Predicate | InternalItemReference | string)[]>;
 
 
