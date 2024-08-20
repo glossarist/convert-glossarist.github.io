@@ -512,11 +512,10 @@ const SupportedSheets = {
         map(p => p.trim()).
         filter(p => p !== '').
         map(paramSheetID => resolveRelated(extractItemID(paramSheetID)) as TransformationParameter).
-        map(({ type, name, value, unitOfMeasurement, parameter, fileCitation }) => {
+        map(({ type, value, unitOfMeasurement, parameter, fileCitation }) => {
           const param: TransformationParameter = {
             type,
             fileCitation,
-            name,
             value,
             parameter,
             unitOfMeasurement,
