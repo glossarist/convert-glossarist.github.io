@@ -233,10 +233,10 @@ async function * generateGRItems(parsedSheetItems, opts) {
         const ref = getOrCreateIdentifiers(item).ref;
         return mode === 'generic' ? ref : ref.itemID;
       } else {
-        console.warn(`Referenced item ${itemID} cannot be found in this proposal`, item);
+        console.warn(`Referenced item ‘${itemID}’ cannot be found in this proposal, got:`, item);
       }
     } catch (e) {
-      console.warn(`Referenced item ${itemID} cannot be found in this proposal`, cellContents, e);
+      console.warn(`Referenced item ‘${itemID}’ cannot be found in this proposal`, cellContents, e);
       return predicate(
         makePredicateQuery(itemID),
         mode,
