@@ -767,10 +767,10 @@ const SupportedSheets = {
     fields: ['description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate'],
     toItem: ({ description, s, w, n, e }) => ({
       name: description,
-      s: parseFloat(s),
-      w: parseFloat(w),
-      n: parseFloat(n),
-      e: parseFloat(e),
+      s,
+      w,
+      n,
+      e,
     }),
   }),
   [Sheets.CITATIONS]: makeProcessor({
