@@ -511,10 +511,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@riboseinc/paneron-extension-geodetic-registry", [\
-        ["npm:1.0.58", {\
-          "packageLocation": "./.yarn/cache/@riboseinc-paneron-extension-geodetic-registry-npm-1.0.58-bb4769e6e0-873ffef035.zip/node_modules/@riboseinc/paneron-extension-geodetic-registry/",\
+        ["npm:1.0.59", {\
+          "packageLocation": "./.yarn/cache/@riboseinc-paneron-extension-geodetic-registry-npm-1.0.59-c375e8eac9-3f5607e719.zip/node_modules/@riboseinc/paneron-extension-geodetic-registry/",\
           "packageDependencies": [\
-            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.58"]\
+            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.59"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -542,6 +542,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@riboseinc/paneron-registry-kit", "npm:2.2.24"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["npm:2.2.54", {\
+          "packageLocation": "./.yarn/cache/@riboseinc-paneron-registry-kit-npm-2.2.54-f88bdddc36-35e1401635.zip/node_modules/@riboseinc/paneron-registry-kit/",\
+          "packageDependencies": [\
+            ["@riboseinc/paneron-registry-kit", "npm:2.2.54"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["@riboseinc/parse-gr-sheet", [\
@@ -549,8 +556,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/gr-sheet/",\
           "packageDependencies": [\
             ["@riboseinc/parse-gr-sheet", "workspace:packages/gr-sheet"],\
-            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.58"],\
-            ["@riboseinc/paneron-registry-kit", "npm:2.2.2"],\
+            ["@riboseinc/paneron-extension-geodetic-registry", "npm:1.0.59"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.2.54"],\
             ["common", "workspace:packages/common"],\
             ["read-excel-file", "npm:5.6.1"],\
             ["typescript", "patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=5da071"]\
@@ -2920,7 +2927,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@riboseinc/glossarist-ruby", "workspace:packages/glossarist-gem"],\
             ["@riboseinc/glossarist-x3duom", "workspace:packages/x3duom"],\
             ["@riboseinc/paneron-extension-glossarist", "npm:2.0.11"],\
-            ["@riboseinc/paneron-registry-kit", "npm:2.2.2"],\
+            ["@riboseinc/paneron-registry-kit", "npm:2.2.54"],\
             ["@riboseinc/parse-gr-sheet", "workspace:packages/gr-sheet"],\
             ["@types/node", "npm:18.16.19"],\
             ["@types/react", "npm:18.2.15"],\

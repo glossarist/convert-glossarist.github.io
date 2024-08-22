@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@riboseinc/paneron-extension-glossarist": "^2.0.11",
-    "@riboseinc/paneron-registry-kit": "2.2.2",
+    "@riboseinc/paneron-registry-kit": "2.2.54",
     "@types/node": "^18",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",

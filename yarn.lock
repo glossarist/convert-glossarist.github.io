@@ -387,10 +387,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@riboseinc/paneron-extension-geodetic-registry@npm:^1.0.58":
-  version: 1.0.58
-  resolution: "@riboseinc/paneron-extension-geodetic-registry@npm:1.0.58"
-  checksum: 873ffef035133bbcda4347eafd657d3c01c7f14fdd9bec71f2df2af4e153162f72ca31252f104d0b80cbb2c8c41562769e39f4841cd44db024dd6988cc561225
+"@riboseinc/paneron-extension-geodetic-registry@npm:^1.0.59":
+  version: 1.0.59
+  resolution: "@riboseinc/paneron-extension-geodetic-registry@npm:1.0.59"
+  checksum: 3f5607e719b7a463fe684e32b2c348bb095c6a7db855434b982ae1349df618c50dafb26f80862d6096645f8121b39f7a801d29904fe15e374a483250420670f5
   languageName: node
   linkType: hard
 
@@ -408,6 +408,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@riboseinc/paneron-registry-kit@npm:2.2.54":
+  version: 2.2.54
+  resolution: "@riboseinc/paneron-registry-kit@npm:2.2.54"
+  checksum: 35e14016359af3f4c9d858ae99cd38d33300ebe37aa0095b2cf1ef3c320628e937d680e07b69b7eaa18906adeba55c16a487f103e63174f414701362ef34586e
+  languageName: node
+  linkType: hard
+
 "@riboseinc/paneron-registry-kit@npm:^2.2.24":
   version: 2.2.24
   resolution: "@riboseinc/paneron-registry-kit@npm:2.2.24"
@@ -419,8 +426,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@riboseinc/parse-gr-sheet@workspace:packages/gr-sheet"
   dependencies:
-    "@riboseinc/paneron-extension-geodetic-registry": ^1.0.58
-    "@riboseinc/paneron-registry-kit": 2.2.2
+    "@riboseinc/paneron-extension-geodetic-registry": ^1.0.59
+    "@riboseinc/paneron-registry-kit": 2.2.54
     common: "workspace:^"
     read-excel-file: ^5.6.1
     typescript: ~5.1
@@ -2599,7 +2606,7 @@ __metadata:
     "@riboseinc/glossarist-ruby": "workspace:^"
     "@riboseinc/glossarist-x3duom": "workspace:~"
     "@riboseinc/paneron-extension-glossarist": ^2.0.11
-    "@riboseinc/paneron-registry-kit": 2.2.2
+    "@riboseinc/paneron-registry-kit": 2.2.54
     "@riboseinc/parse-gr-sheet": "workspace:^"
     "@types/node": ^18
     "@types/react": ^18.2.15
