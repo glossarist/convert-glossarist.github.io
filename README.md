@@ -28,6 +28,18 @@ Some packages may be published separately in future,
 while other packages (e.g., webgui or cli)
 may only be deployed or distributed.
 
+### Known issue: `compile` scripts fail
+
+`gr-sheet` convertor package’s `compile` script,
+and by extension the top-level `compile-all` script,
+fail due to the way Paneron’s GR extension is packaged.
+
+This only causes typechecking errors due to “missing” dependencies
+(which are not to be included and are supposed to be supplied by the host),
+and does not cause the failure of the build command.
+
+To be fixed.
+
 ### Pre-requisites
 
 Below instructions will expect you to either use
