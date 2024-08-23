@@ -685,15 +685,15 @@ const SupportedSheets = {
     },
   }),
   [Sheets.COORDINATE_OP_METHODS]: makeItemProcessor({
-    fields: ['remarks', 'parameters', 'formula', 'informationSources', 'sourceCRSDimensionCount', 'targetCRSDimensionCount'],
+    fields: ['remarks', 'parameters', 'formula', 'formulaCitation'],
     getClassID: () => 'coordinate-op-method',
-    toRegisterItem: function parseCoordinateOpMethod({ parameters, formula, informationSources, sourceCRSDimensionCount, targetCRSDimensionCount }, resolveRelated, resolveReference) {
+    toRegisterItem: function parseCoordinateOpMethod({ parameters, formula, formulaCitation }, resolveRelated, resolveReference) {
       const item: Omit<UsePredicateLists<CoordinateOpMethod, 'parameters'>, 'identifier' | keyof CommonGRItemData> = {
         parameters: parameters.trim() !== ''
           ? parameters.split(';').map(paramUUID => resolveReference(paramUUID, 'id'))
           : [],
-        // citation: resolveRelated(citation),
-        // formula,
+        formulaCitation: formulaCitation ? resolveRelated(formulaCitation) : null,
+        formula: formula.trim() || null,
       };
       return item;
     },
