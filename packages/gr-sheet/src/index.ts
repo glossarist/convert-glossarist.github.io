@@ -748,7 +748,7 @@ const SupportedSheets = {
         value: type === "Reference File"
           ? fileRef
           : value,
-        name: '', // XXX: name seems unused
+        //name: '', // XXX: name seems unused
         fileCitation: null,
       };
       if (citation.trim() !== '') {
