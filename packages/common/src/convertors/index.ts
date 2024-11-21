@@ -30,7 +30,7 @@ export async function asProposal<R extends RegisterConfiguration>(
     timeStarted: now,
     timeEdited: now,
     state: 'draft',  // State.DRAFT
-    justification: 'exported via Glossarist migration adapter',
+    justification: 'exported via converter',
     items: {},
   }
   opts?.onProgress?.(`Generated proposal ${id}`);
