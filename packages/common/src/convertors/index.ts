@@ -1,4 +1,4 @@
-import type { Drafted as ProposalDraft } from '@riboseinc/paneron-registry-kit/types/cr.js';
+import type { Drafted as ProposalDraft } from '@riboseinc/paneron-registry-kit/proposals/types.js';
 import type { RegisterItem, RegisterConfiguration } from '@riboseinc/paneron-registry-kit/types';
 import type {
   CommonStreamProcessingOptions,
