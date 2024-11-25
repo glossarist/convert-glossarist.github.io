@@ -4,8 +4,8 @@ import type {
   ItemClassConfiguration,
   InternalItemReference,
 } from '@riboseinc/paneron-registry-kit/types';
-import type { Predicate } from '@riboseinc/paneron-registry-kit/views/change-request/objectChangeset.js';
 import type { CommonGRItemData, Extent } from '@riboseinc/paneron-extension-geodetic-registry/classes/common.js';
+import type { Predicate } from '@riboseinc/paneron-registry-kit/proposals/objectChangeset.js';
 import type { DatumData, GeodeticDatumData } from '@riboseinc/paneron-extension-geodetic-registry/classes/datum.js';
 import type { TransformationParameter, TransformationData } from '@riboseinc/paneron-extension-geodetic-registry/classes/transformation.js';
 import type { ConversionParameter, ConversionData } from '@riboseinc/paneron-extension-geodetic-registry/classes/conversion.js';
