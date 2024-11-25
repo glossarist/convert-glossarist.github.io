@@ -32,7 +32,7 @@ export async function asProposal<R extends RegisterConfiguration>(
     state: 'draft',  // State.DRAFT
     justification: 'imported from converter',
     items: {},
-  }
+  };
   opts?.onProgress?.(`Generated proposal ${id}`);
   const itemPayloads: Record<string, RegisterItem<any>> = {};
   for await (const item of items) {
