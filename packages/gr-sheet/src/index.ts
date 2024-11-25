@@ -469,7 +469,7 @@ function makeItemProcessor<F extends string, RI>
       aliases: parsedRow.aliases.trim() !== ''
         ? parsedRow.aliases.split(';').map((a: string) => a.trim())
         : [],
-      informationSources: parsedRow.informationSources.trim() !== ''
+      informationSources: (parsedRow.informationSources ?? '').trim() !== ''
         ? parsedRow.informationSources.split(';').
             map((cid: string) => resolveRelated(extractItemID(cid)))
         : [],
