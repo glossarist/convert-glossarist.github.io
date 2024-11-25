@@ -467,14 +467,14 @@ function makeItemProcessor<F extends string, RI>
   function parseRegisterItemWrapped (parsedRow, resolveRelated, resolveReference) {
     const commonData: Omit<CommonGRItemData, 'identifier'> = {
       name: parsedRow.name.trim() || '',
-      aliases: parsedRow.aliases.trim() !== ''
+      aliases: (parsedRow.aliases ?? '').trim() !== ''
         ? parsedRow.aliases.split(';').map((a: string) => a.trim())
         : [],
       informationSources: (parsedRow.informationSources ?? '').trim() !== ''
         ? parsedRow.informationSources.split(';').
             map((cid: string) => resolveRelated(extractItemID(cid)))
         : [],
-      remarks: parsedRow.remarks.trim() || '',
+      remarks: (parsedRow.remarks ?? '').trim() || '',
     }
     const data = originalParser(parsedRow, resolveRelated, resolveReference);
     const result = {
@@ -503,7 +503,7 @@ const SupportedSheets = {
       return 'coordinate-ops--transformation';
     },
     toRegisterItem: function toTransformation(item, resolveRelated, resolveReference, opts) {
-      const extent = resolveReference(item.extent) as Extent;
+      const extentRef = resolveReference(item.extent) as Extent;
       //const itemData: Omit<ReplaceKeys<
       //  UsePredicates<TransformationData, 'sourceCRS' | 'targetCRS'>,
       //  'accuracy',
@@ -531,7 +531,7 @@ const SupportedSheets = {
         accuracy: parseValueWithUoM(item.accuracy) as unknown as TransformationData["accuracy"],
         sourceCRS: resolveReference(item.sourceCRS, 'generic'),
         targetCRS: resolveReference(item.targetCRS, 'generic'),
-        extent,
+        extentRef,
         parameters,
       };
       return data;
@@ -541,8 +541,8 @@ const SupportedSheets = {
     fields: [null, 'scope', 'remarks', 'coordinateOperationMethod', 'extent', 'parameters', 'informationSources'],
     getClassID: () => 'coordinate-ops--conversion',
     toRegisterItem: function toConversion(item, resolveRelated, resolveReference, opts) {
-      const extent = resolveReference(item.extent) as Extent;
-      if (!extent) {
+      const extentRef = resolveReference(item.extent) as Extent;
+      if (!extentRef) {
         throw new Error("No extent!");
       }
       const parameters = item.parameters.split(';').
@@ -566,7 +566,7 @@ const SupportedSheets = {
         coordinateOperationMethod: resolveReference(item.coordinateOperationMethod, 'id'),
         scope: item.scope,
         parameters,
-        extent,
+        extentRef,
       };
       return result;
     },
@@ -575,15 +575,15 @@ const SupportedSheets = {
     fields: ['scope', 'remarks', 'horizontalCRS', 'verticalCRS', 'extent', 'informationSources'],
     getClassID: () => 'crs--compound',
     toRegisterItem: function toCompoundCRS(item, resolveRelated, resolveReference) {
-      const extent = resolveReference(item.extent);
-      if (!extent) {
+      const extentRef = resolveReference(item.extent);
+      if (!extentRef) {
         throw new Error("No extent!");
       }
       return {
         remarks: item.remarks,
         horizontalCRS: resolveReference(item.horizontalCRS, 'generic'),
         verticalCRS: resolveReference(item.verticalCRS, 'generic'),
-        extent,
+        extentRef,
         informationSources: [],
         scope: item.scope,
       };
@@ -593,7 +593,7 @@ const SupportedSheets = {
     fields: ['scope', 'remarks', 'type', 'datum', 'coordinateSystem', 'baseCRS', 'operation', 'extent', 'informationSources'],
     getClassID: (row) => `crs--${row.type.split(' ')[0]!.toLowerCase()}`,
     toRegisterItem: function toNonCompoundCRS(item, resolveRelated, resolveReference) {
-      const extent = resolveReference(item.extent) as unknown as Extent;
+      const extentRef = resolveReference(item.extent) as unknown as Extent;
 
       const baseCRS = item.baseCRS.trim() !== ''
         ? resolveReference(item.baseCRS, 'generic')
@@ -610,7 +610,7 @@ const SupportedSheets = {
         coordinateSystem: resolveReference(item.coordinateSystem, 'generic'),
         baseCRS,
         operation,
-        extent,
+        extentRef,
       };
 
       switch (item.type) {
@@ -706,15 +706,15 @@ const SupportedSheets = {
     fields: ['type', 'scope', 'remarks', 'originDescription', 'ellipsoid', 'primeMeridian', 'releaseDate', 'coordinateReferenceEpoch', 'extent', 'informationSources'],
     getClassID: ({ type }) => (type === 'Vertical Datum' ? 'datums--vertical' : 'datums--geodetic'),
     toRegisterItem: function parseDatum({ scope, originDescription, releaseDate, ...item }, resolveRelated, resolveReference) {
-      const extent = resolveReference(item.extent) as Extent | undefined;
-      if (!extent) {
+      const extentRef = resolveReference(item.extent) as Extent | undefined;
+      if (!extentRef) {
         throw new Error("No extent!");
       }
       const sharedData: Item<DatumData, never> = {
         scope,
         originDescription,
         releaseDate,
-        extent,
+        extentRef,
         coordinateReferenceEpoch: item.coordinateReferenceEpoch.trim() || null,
       } as const;
       if (item.type === 'GeodeticDatum') {
@@ -767,15 +767,20 @@ const SupportedSheets = {
       return c;
     },
   }),
-  [Sheets.EXTENTS]: makeProcessor({
-    fields: ['description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate'],
-    toItem: ({ description, s, w, n, e }) => ({
-      name: description,
-      s,
-      w,
-      n,
-      e,
-    }),
+  [Sheets.EXTENTS]: makeItemProcessor({
+    fields: ['name', 'description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate'],
+    getClassID: () => 'extent',
+    toRegisterItem: function parseExtent ({ description, s, w, n, e }) {
+      return {
+        extent: {
+          name: description,
+          s,
+          w,
+          n,
+          e,
+        },
+      };
+    },
   }),
   [Sheets.CITATIONS]: makeProcessor({
     fields: ['title', 'alternateTitles', 'author', 'publisher', 'publicationDate', 'revisionDate', 'edition', 'editionDate', 'seriesName', 'seriesIssueID', 'seriesPage', 'otherDetails', 'uri'],
