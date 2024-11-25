@@ -548,13 +548,13 @@ const SupportedSheets = {
         map(p => p.trim()).
         filter(p => p !== '').
         map(paramSheetID => resolveRelated(extractItemID(paramSheetID)) as TransformationParameter).
-        map(({ type, name, value, unitOfMeasurement, parameter }) => {
+        map(({ type, value, unitOfMeasurement, parameter }) => {
           if (type === ParameterType.FILE) {
             opts?.onProgress?.("ERROR: “Reference File” parameters are not supported on Conversions");
             //throw new Error("“Reference File” parameters are not supported on Conversions");
           }
           const param: ConversionParameter = {
-            name,
+            //name,
             value,
             parameter,
             unitOfMeasurement,
