@@ -692,9 +692,12 @@ const SupportedSheets = {
         parameters: parameters.trim() !== ''
           ? parameters.split(';').map(paramUUID => resolveReference(paramUUID, 'id'))
           : [],
-        formulaCitation: formulaCitation ? resolveRelated(formulaCitation) : null,
-        formula: formula.trim() || null,
       };
+      if (formulaCitation.trim()) {
+        item.formulaCitation = resolveRelated(formulaCitation);
+      } else if (formula.trim()) {
+        item.formula = formula;
+      }
       return item;
     },
   }),
