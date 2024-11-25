@@ -4,8 +4,9 @@ import type {
   ItemClassConfiguration,
   InternalItemReference,
 } from '@riboseinc/paneron-registry-kit/types';
-import type { CommonGRItemData, Extent } from '@riboseinc/paneron-extension-geodetic-registry/classes/common.js';
 import type { Predicate } from '@riboseinc/paneron-registry-kit/proposals/objectChangeset.js';
+import type { CommonGRItemData } from '@riboseinc/paneron-extension-geodetic-registry/classes/common.js';
+import type { Extent } from '@riboseinc/paneron-extension-geodetic-registry/classes/extent.js';
 import type { DatumData, GeodeticDatumData } from '@riboseinc/paneron-extension-geodetic-registry/classes/datum.js';
 import type { TransformationParameter, TransformationData } from '@riboseinc/paneron-extension-geodetic-registry/classes/transformation.js';
 import type { ConversionParameter, ConversionData } from '@riboseinc/paneron-extension-geodetic-registry/classes/conversion.js';
@@ -502,7 +503,7 @@ const SupportedSheets = {
       return 'coordinate-ops--transformation';
     },
     toRegisterItem: function toTransformation(item, resolveRelated, resolveReference, opts) {
-      const extent = resolveRelated(extractItemID(item.extent)) as Extent;
+      const extent = resolveReference(item.extent) as Extent;
       //const itemData: Omit<ReplaceKeys<
       //  UsePredicates<TransformationData, 'sourceCRS' | 'targetCRS'>,
       //  'accuracy',
@@ -540,7 +541,7 @@ const SupportedSheets = {
     fields: [null, 'scope', 'remarks', 'coordinateOperationMethod', 'extent', 'parameters', 'informationSources'],
     getClassID: () => 'coordinate-ops--conversion',
     toRegisterItem: function toConversion(item, resolveRelated, resolveReference, opts) {
-      const extent = resolveRelated(extractItemID(item.extent)) as Extent;
+      const extent = resolveReference(item.extent) as Extent;
       if (!extent) {
         throw new Error("No extent!");
       }
@@ -574,7 +575,7 @@ const SupportedSheets = {
     fields: ['scope', 'remarks', 'horizontalCRS', 'verticalCRS', 'extent', 'informationSources'],
     getClassID: () => 'crs--compound',
     toRegisterItem: function toCompoundCRS(item, resolveRelated, resolveReference) {
-      const extent = resolveRelated(extractItemID(item.extent));
+      const extent = resolveReference(item.extent);
       if (!extent) {
         throw new Error("No extent!");
       }
@@ -592,7 +593,7 @@ const SupportedSheets = {
     fields: ['scope', 'remarks', 'type', 'datum', 'coordinateSystem', 'baseCRS', 'operation', 'extent', 'informationSources'],
     getClassID: (row) => `crs--${row.type.split(' ')[0]!.toLowerCase()}`,
     toRegisterItem: function toNonCompoundCRS(item, resolveRelated, resolveReference) {
-      const extent = resolveRelated(extractItemID(item.extent)) as unknown as Extent;
+      const extent = resolveReference(item.extent) as unknown as Extent;
 
       const baseCRS = item.baseCRS.trim() !== ''
         ? resolveReference(item.baseCRS, 'generic')
@@ -705,7 +706,7 @@ const SupportedSheets = {
     fields: ['type', 'scope', 'remarks', 'originDescription', 'ellipsoid', 'primeMeridian', 'releaseDate', 'coordinateReferenceEpoch', 'extent', 'informationSources'],
     getClassID: ({ type }) => (type === 'Vertical Datum' ? 'datums--vertical' : 'datums--geodetic'),
     toRegisterItem: function parseDatum({ scope, originDescription, releaseDate, ...item }, resolveRelated, resolveReference) {
-      const extent = resolveRelated(extractItemID(item.extent)) as Extent | undefined;
+      const extent = resolveReference(item.extent) as Extent | undefined;
       if (!extent) {
         throw new Error("No extent!");
       }
