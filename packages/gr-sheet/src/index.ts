@@ -127,7 +127,7 @@ interface GRItem<T extends CommonGRItemData> {
 export default function getConvertor(): GRSheetConvertor {
   return {
     label: "ISO GR sheet v7a",
-    inputDescription: "One or more TC 211 GR v6 spreadsheet files, in XLSX format, containing proposed additions",
+    inputDescription: "One or more TC 211 GR v7a spreadsheet files, in XLSX format, containing proposed additions",
     parseInput,
     generateItems,
     generateRegisterItems,
