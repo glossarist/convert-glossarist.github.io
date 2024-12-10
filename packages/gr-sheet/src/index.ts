@@ -768,7 +768,7 @@ const SupportedSheets = {
     },
   }),
   [Sheets.EXTENTS]: makeItemProcessor({
-    fields: ['name', 'description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate'],
+    fields: ['description', 's', 'w', 'n', 'e', 'polygon', 'startDate', 'finishDate'],
     getClassID: () => 'extent',
     toRegisterItem: function parseExtent ({ description, s, w, n, e }) {
       return {
