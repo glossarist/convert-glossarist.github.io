@@ -248,6 +248,17 @@ async function * generateGRItems(parsedSheetItems, opts) {
     throw new Error(`Unable to resolve reference, ${itemID}`);
   }
 
+  const isCellNull = function (cellContents: string): boolean {
+    return cellContents.trim().length === 0 || cellContents.trim().toLowerCase() === 'none';
+  }
+
+  const resolveNullableReference = function (cellContents: string, mode: Predicate["mode"]): ReturnType<typeof resolveReference> | null {
+    if (isCellNull(cellContents)) {
+      return null;
+    }
+    return resolveReference(cellContents, mode);
+  }
+
   const resolveRelated = function resolveRelated(cellContents: string) {
 
     //const itemID = sheetItemID.split(' ')[0];
@@ -277,7 +288,7 @@ async function * generateGRItems(parsedSheetItems, opts) {
     if (isRegisterItemProcessor(processor)) {
       return processor.toRegisterItem(pr, resolveAndConstruct, resolveReference, opts);
     } else if (isBasicSheetItemProcessor(processor)) {
-      return processor.toItem(pr, resolveAndConstruct, resolveReference, opts);
+      return processor.toItem(pr, resolveAndConstruct, resolveNullableReference, opts);
     } else {
       throw new Error("Unknown processor");
     }
@@ -375,7 +386,7 @@ interface BaseSheetItemProcessor<F extends string, I> {
      */
     resolveReference:
       (rawCellContents: string, mode: Predicate["mode"]) =>
-        Predicate | InternalItemReference | string,
+        Predicate | InternalItemReference | string | null,
     opts?: { onProgress?: (msg: string) => void },
   ) => I;
 }
@@ -411,7 +422,7 @@ extends Omit<BaseSheetItemProcessor<F, RI>, 'toItem'> {
      */
     resolveReference:
       (rawCellContents: string, mode: Predicate["mode"]) =>
-        Predicate | InternalItemReference | string,
+        Predicate | InternalItemReference | string | null,
     opts?: { onProgress?: (msg: string) => void },
   ) => RI;
 }
@@ -751,7 +762,7 @@ const SupportedSheets = {
           : ParameterType.MEASURE,
         unitOfMeasurement: ["Reference File", 'Integer'].includes(type)
           ? null
-          : resolveReference(unitOfMeasurement, 'id') as string | Predicate,
+          : resolveReference(unitOfMeasurement, 'id') as string | Predicate | null,
         value: type === "Reference File"
           ? fileRef
           : value,
