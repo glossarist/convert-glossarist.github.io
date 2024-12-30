@@ -718,7 +718,7 @@ const SupportedSheets = {
         extentRef,
         coordinateReferenceEpoch: item.coordinateReferenceEpoch.trim() || null,
       } as const;
-      if (/geodetic *datum/i.test(item.type)) {
+      if (/geodetic(?: *datum *)?$/i.test(item.type)) {
         const d: Omit<UsePredicates<GeodeticDatumData, 'ellipsoid' | 'primeMeridian'>, keyof CommonGRItemData> = {
           ...sharedData,
           ellipsoid: resolveReference(item.ellipsoid, 'id'),
