@@ -26,6 +26,7 @@ import { teeAsync } from '../../common/src/util.js';
 export const ParameterType = {
   FILE: 'parameter file name',
   MEASURE: 'measure (w/ UoM)',
+  INTEGER_VALUE: 'integer value',
 } as const;
 
 
@@ -745,10 +746,12 @@ const SupportedSheets = {
         parameter: resolveReference(parameter, 'id') as string | Predicate,
         type: type === "Reference File"
           ? ParameterType.FILE
+          : type === "Integer"
+          ? ParameterType.INTEGER_VALUE
           : ParameterType.MEASURE,
-        unitOfMeasurement: type !== "Reference File"
-          ? resolveReference(unitOfMeasurement, 'id') as string | Predicate
-          : null,
+        unitOfMeasurement: ["Reference File", 'Integer'].includes(type)
+          ? null
+          : resolveReference(unitOfMeasurement, 'id') as string | Predicate,
         value: type === "Reference File"
           ? fileRef
           : value,
