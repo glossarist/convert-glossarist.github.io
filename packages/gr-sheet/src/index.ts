@@ -718,7 +718,7 @@ const SupportedSheets = {
         extentRef,
         coordinateReferenceEpoch: item.coordinateReferenceEpoch.trim() || null,
       } as const;
-      if (item.type === 'GeodeticDatum') {
+      if (/geodetic *datum/i.test(item.type)) {
         const d: Omit<UsePredicates<GeodeticDatumData, 'ellipsoid' | 'primeMeridian'>, keyof CommonGRItemData> = {
           ...sharedData,
           ellipsoid: resolveReference(item.ellipsoid, 'id'),
@@ -727,7 +727,7 @@ const SupportedSheets = {
         return d;
       } else {
         if (item.ellipsoid || item.primeMeridian) {
-          throw new Error("Ellipsoid and prime meridian are not recognized as properties of a Geodetic Datum");
+          throw new Error(`Ellipsoid and prime meridian are not recognized as properties of a ${item.type}`);
         }
         return sharedData;
       }
