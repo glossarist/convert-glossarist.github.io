@@ -219,11 +219,25 @@ const App: React.FC<Record<never, never>> = function () {
                 </>
             : <>No convertor is available.</>}
         </div>
+        <div className={styles.copyLog}>
+          <CopyLogButton log={_log} />
+        </div>
       </div>
     </div>
   );
 };
 
+const CopyLogButton: React.FC<{ log: string[] }> = ({ log }) => {
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(log.join('\n'));
+      }}
+    >
+      Copy log to clipboard
+    </button>
+  );
+};
 
 const DropReceiver: React.FC<{
   onDrop: (input?: Upload) => void;

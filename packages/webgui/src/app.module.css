@@ -45,6 +45,12 @@
     font-size: 90%;
     padding: 2rem;
   }
+
+  .copyLog {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+  }
 }
 
 .hidden {
